@@ -13,7 +13,7 @@ TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
 def get_problem(problem_id):
     with open('%s/problems.json' % DATA_PATH) as f:
         problems = json.load(f)
-    return problems[problem_id - 1] if len(problems) >= problem_id else None
+    return problems[problem_id - 1]
 
 
 def get_template_path(language):
