@@ -11,15 +11,22 @@ def commands():
 
 
 @click.command()
+@click.option('--path', '-p', type=click.Path())
+@click.option('--overwrite', '-o', is_flag=True)
 @click.argument('problem_id', type=click.IntRange(1, None))
 @click.argument('language', required=False, default='python')
-def generate(problem_id, language):
+def generate(problem_id, language, path, overwrite):
     problem = get_problem(problem_id)
 
     if problem is None:
         sys.exit('Problem %d does not exist' % problem_id)
 
-    file_name = write_to_file(problem, language)
-    click.echo('Written to file %s' % file_name)
+    path, success = write_to_file(problem, language, path, overwrite)
+
+    if not success:
+        sys.exit('%s already exists. Use the --overwrite flag to overwrite it' %
+                 click.format_filename(path))
+
+    click.echo('Written to %s' % click.format_filename(path))
 
 commands.add_command(generate)

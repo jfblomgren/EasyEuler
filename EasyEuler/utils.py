@@ -36,12 +36,17 @@ def get_file_extension(language):
     return os.path.splitext(template_path)[1]
 
 
-def write_to_file(problem, language):
+def write_to_file(problem, language, path=None, overwrite=False):
     file_extension = get_file_extension(language)
-    file_name = 'euler_%03d%s' % (problem['id'], file_extension)
     template = get_template(language)
 
-    with open(file_name, 'w') as f:
+    if path is None:
+        path = 'euler_%03d%s' % (problem['id'], file_extension)
+
+    if os.path.exists(path) and not overwrite:
+        return (path, False)
+
+    with open(path, 'w') as f:
         f.write(template.render(**problem))
 
-    return file_name
+    return (path, True)
