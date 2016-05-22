@@ -5,7 +5,8 @@ setup(
     version='0.1',
     py_modules=['EasyEuler'],
     install_requires=[
-        'Click'
+        'Click',
+        'Jinja2'
     ],
     entry_points='''
         [console_scripts]
