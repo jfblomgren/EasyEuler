@@ -1,3 +1,5 @@
+import sys
+
 import click
 
 from .utils import write_to_file, get_problem
@@ -15,8 +17,7 @@ def generate(problem_id, language):
     problem = get_problem(problem_id)
 
     if problem is None:
-        click.echo('Problem %d does not exist' % problem_id)
-        return
+        sys.exit('Problem %d does not exist' % problem_id)
 
     file_name = write_to_file(problem, language)
     click.echo('Written to file %s' % file_name)
