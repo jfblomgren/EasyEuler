@@ -21,7 +21,10 @@ def generate(problem_id, language, path, overwrite):
     if problem is None:
         sys.exit('Problem %d does not exist' % problem_id)
 
-    path, success = write_to_file(problem, language, path, overwrite)
+    try:
+        path, success = write_to_file(problem, language, path, overwrite)
+    except (FileNotFoundError, PermissionError) as e:
+        sys.exit('An exception occurred: %s' % e)
 
     if not success:
         sys.exit('%s already exists. Use the --overwrite flag to overwrite it' %
