@@ -22,7 +22,7 @@ class TestGenerateCommand(CommandLineInterfaceTestCase):
 
     def test_invalid_problem_id(self):
         result = self.runner.invoke(commands, ['generate', '9999'])
-        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(result.exit_code, 2)
 
 
 if __name__ == '__main__':
