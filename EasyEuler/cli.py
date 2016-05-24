@@ -6,12 +6,10 @@ from .utils import write_to_file, get_problem
 from .types import ProblemType
 
 
-@click.group()
-def commands():
-    pass
+commands = click.Group()
 
 
-@click.command()
+@commands.command()
 @click.option('--path', '-p', type=click.Path())
 @click.option('--overwrite', '-o', is_flag=True)
 @click.argument('problem', type=ProblemType())
@@ -28,4 +26,3 @@ def generate(problem, language, path, overwrite):
 
     click.echo('Written to %s' % click.format_filename(path))
 
-commands.add_command(generate)
