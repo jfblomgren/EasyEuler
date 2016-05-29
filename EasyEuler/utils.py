@@ -1,4 +1,5 @@
 import json
+import subprocess
 import os
 import glob
 
@@ -8,6 +9,7 @@ from jinja2 import Template
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 DATA_PATH = os.path.join(BASE_PATH, 'data')
 TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
+CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
 
 
 def get_problem(problem_id):
@@ -50,3 +52,47 @@ def write_to_file(problem, language, path=None, overwrite=False):
         f.write(template.render(**problem))
 
     return (path, True)
+
+
+def get_problem_id(path):
+    file_name = os.path.splitext(path)[0]
+    return int(file_name.split('_')[1])
+
+
+def get_language_from_file_extension(file_extension):
+    matching_files = glob.glob('%s/*%s' % (TEMPLATE_PATH, file_extension))
+
+    if len(matching_files) > 0:
+        file_name = os.path.basename(matching_files[0])
+        return os.path.splitext(file_name)[0]
+    return None
+
+
+def get_command(language):
+    with open(CONFIG_PATH) as f:
+        commands = json.load(f)
+    return commands.get(language)
+
+
+def verify_solution(path, problem_id=None, language=None):
+    if problem_id is None:
+        problem_id = get_problem_id(path)
+
+    if language is None:
+        file_extension = os.path.splitext(path)[1]
+        language = get_language_from_file_extension(file_extension)
+
+    problem = get_problem(problem_id)
+    command = get_command(language).format(path=path)
+    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    output = str(process.stdout, encoding='UTF-8').replace('\n', '')
+
+    if process.returncode > 0:
+        status = 'E'
+    elif output == problem['answer']:
+        status = 'C'
+    else:
+        status = 'I'
+
+    return status, output

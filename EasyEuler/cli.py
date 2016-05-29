@@ -1,8 +1,9 @@
 import sys
+import glob
 
 import click
 
-from .utils import write_to_file, get_problem
+from .utils import write_to_file, get_problem, verify_solution
 from .types import ProblemType
 
 
@@ -26,3 +27,27 @@ def generate(problem, language, path, overwrite):
 
     click.echo('Written to %s' % click.format_filename(path))
 
+
+@commands.command()
+# TODO: Find a way to avoid name collision with all function from stdlib
+@click.option('--all_', '-a', is_flag=True)
+@click.option('--recursive', '-r', is_flag=True)
+@click.option('--language', '-l')
+@click.argument('path')
+def verify(path, all_, recursive, language):
+    # TODO: Fix directories counting as a path
+    # Only count actual files as paths
+    # Possibly create util function
+    # http://stackoverflow.com/a/2186565/4863420
+    if all_:
+        paths = glob.glob(path, recursive=recursive)
+    else:
+        paths = [glob.glob(path, recursive=recursive)[0]]
+
+    if not len(paths) > 0:
+        sys.exit('No files matching the pattern "%s" were found' % path)
+
+    for path_ in paths:
+        status, output = verify_solution(path_, language=language)
+        click.echo('Checking output of %s: %s' % (path_, output))
+        click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
