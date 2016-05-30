@@ -34,9 +34,11 @@ def generate(problem, language, path, overwrite):
 def verify(path, language):
     for path_ in path:
         if os.path.isdir(path_):
-            click.echo('Skipping %s because it is a directory' % path_)
+            click.echo('Skipping %s because it is a directory' %
+                       click.format_filename(path_))
             continue
 
         status, output = verify_solution(path_, language=language)
-        click.echo('Checking output of %s: %s' % (path_, output))
+        click.echo('Checking output of %s: %s' % (click.format_filename(path_),
+                                                  output))
         click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
