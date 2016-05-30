@@ -1,5 +1,5 @@
 import sys
-import glob
+import os
 
 import click
 
@@ -29,25 +29,14 @@ def generate(problem, language, path, overwrite):
 
 
 @commands.command()
-# TODO: Find a way to avoid name collision with all function from stdlib
-@click.option('--all_', '-a', is_flag=True)
-@click.option('--recursive', '-r', is_flag=True)
 @click.option('--language', '-l')
-@click.argument('path')
-def verify(path, all_, recursive, language):
-    # TODO: Fix directories counting as a path
-    # Only count actual files as paths
-    # Possibly create util function
-    # http://stackoverflow.com/a/2186565/4863420
-    if all_:
-        paths = glob.glob(path, recursive=recursive)
-    else:
-        paths = [glob.glob(path, recursive=recursive)[0]]
+@click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
+def verify(path, language):
+    for path_ in path:
+        if os.path.isdir(path_):
+            click.echo('Skipping %s because it is a directory' % path_)
+            continue
 
-    if not len(paths) > 0:
-        sys.exit('No files matching the pattern "%s" were found' % path)
-
-    for path_ in paths:
         status, output = verify_solution(path_, language=language)
         click.echo('Checking output of %s: %s' % (path_, output))
         click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
