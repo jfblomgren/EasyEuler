@@ -16,7 +16,7 @@ CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
 def get_problem(problem_id):
     with open('%s/problems.json' % DATA_PATH) as f:
         problems = json.load(f)
-    return problems[problem_id - 1]
+    return problems[problem_id - 1] if len(problems) >= problem_id else None
 
 
 def get_template_path(language):
@@ -76,9 +76,6 @@ def get_command(language):
 
 
 def verify_solution(path, problem_id=None, language=None):
-    if problem_id is None:
-        problem_id = get_problem_id(path)
-
     if language is None:
         file_extension = os.path.splitext(path)[1]
         language = get_language_from_file_extension(file_extension)

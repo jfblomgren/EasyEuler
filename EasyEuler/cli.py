@@ -3,7 +3,7 @@ import os
 
 import click
 
-from .utils import write_to_file, get_problem, verify_solution
+from .utils import write_to_file, get_problem, get_problem_id, verify_solution
 from .types import ProblemType
 
 
@@ -38,7 +38,14 @@ def verify(path, language):
                        click.format_filename(path_))
             continue
 
-        status, output = verify_solution(path_, language=language)
+        problem_id = get_problem_id(path_)
+        if problem_id is None or get_problem(problem_id) is None:
+            click.echo('Skipping %s because because it does not contain ' \
+                       'a valid problem ID' % click.format_filename(path_))
+            continue
+
+        status, output = verify_solution(path_, problem_id, language)
+
         click.echo('Checking output of %s: %s' % (click.format_filename(path_),
                                                   output))
         click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
