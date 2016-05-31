@@ -2,6 +2,7 @@ import json
 import subprocess
 import os
 import glob
+import re
 
 from jinja2 import Template
 
@@ -55,8 +56,8 @@ def write_to_file(problem, language, path=None, overwrite=False):
 
 
 def get_problem_id(path):
-    file_name = os.path.splitext(path)[0]
-    return int(file_name.split('_')[1])
+    problem_id = re.findall(r'\D*([1-9]\d{0,2}).*', path)
+    return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
 def get_language_from_file_extension(file_extension):
