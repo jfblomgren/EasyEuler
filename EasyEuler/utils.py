@@ -4,13 +4,15 @@ import os
 import glob
 import re
 
-from jinja2 import Template
+from jinja2 import Environment, FileSystemLoader
 
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 DATA_PATH = os.path.join(BASE_PATH, 'data')
 TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
 CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
+
+templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 
 
 def get_problem(problem_id):
@@ -21,7 +23,9 @@ def get_problem(problem_id):
 
 def get_template_path(language):
     matching_files = glob.glob('%s/%s.*' % (TEMPLATE_PATH, language))
-    return matching_files[0] if len(matching_files) > 0 else None
+    if len(matching_files) > 0:
+        return os.path.basename(matching_files[0])
+    return None
 
 
 def get_template(language):
@@ -29,9 +33,7 @@ def get_template(language):
 
     if template_path is None:
         return None
-
-    with open(template_path) as f:
-        return Template(f.read())
+    return templates.get_template(template_path)
 
 
 def get_file_extension(language):
