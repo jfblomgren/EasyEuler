@@ -4,7 +4,7 @@ import os
 import click
 
 from .utils import write_to_file, get_problem, get_problem_id, verify_solution
-from .types import ProblemType
+from .types import ProblemType, LanguageType
 
 
 commands = click.Group()
@@ -14,7 +14,8 @@ commands = click.Group()
 @click.option('--path', '-p', type=click.Path())
 @click.option('--overwrite', '-o', is_flag=True)
 @click.argument('problem', type=ProblemType())
-@click.argument('language', required=False, default='python')
+@click.argument('language', type=LanguageType(),
+                required=False, default='python')
 def generate(problem, language, path, overwrite):
     try:
         path, success = write_to_file(problem, language, path, overwrite)
@@ -29,7 +30,7 @@ def generate(problem, language, path, overwrite):
 
 
 @commands.command()
-@click.option('--language', '-l')
+@click.option('--language', '-l', type=LanguageType())
 @click.option('--recursive', '-r', is_flag=True)
 @click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
 def verify(path, language, recursive):

@@ -1,4 +1,15 @@
 {
-    "python": "python {path}",
-    "c": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out"
+    "languages": [
+        {
+            "name": "python",
+            "extension": "py",
+            "command": "python {path}",
+            "template": "python"
+        },
+        {
+            "name": "c",
+            "extension": "c",
+            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out"
+        }
+    ]
 }

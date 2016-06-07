@@ -14,6 +14,9 @@ CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
 
 templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 
+with open(CONFIG_PATH) as f:
+    config = json.load(f)
+
 
 def get_problem(problem_id):
     with open('%s/problems.json' % DATA_PATH) as f:
@@ -21,32 +24,19 @@ def get_problem(problem_id):
     return problems[problem_id - 1] if len(problems) >= problem_id else None
 
 
-def get_template_path(language):
-    matching_files = glob.glob('%s/%s.*' % (TEMPLATE_PATH, language))
-    if len(matching_files) > 0:
-        return os.path.basename(matching_files[0])
+def get_language(name):
+    for language in config['languages']:
+        if language['name'] == name:
+            return language
     return None
 
 
-def get_template(language):
-    template_path = get_template_path(language)
-
-    if template_path is None:
-        return None
-    return templates.get_template(template_path)
-
-
-def get_file_extension(language):
-    template_path = get_template_path(language)
-    return os.path.splitext(template_path)[1]
-
-
 def write_to_file(problem, language, path=None, overwrite=False):
-    file_extension = get_file_extension(language)
-    template = get_template(language)
+    template = templates.get_template(language.get('template',
+                                                   language['name']))
 
     if path is None:
-        path = 'euler_%03d%s' % (problem['id'], file_extension)
+        path = 'euler_%03d.%s' % (problem['id'], language['extension'])
 
     if os.path.exists(path) and not overwrite:
         return (path, False)
@@ -63,32 +53,19 @@ def get_problem_id(path):
 
 
 def get_language_from_file_extension(file_extension):
-    matching_files = glob.glob('%s/*%s' % (TEMPLATE_PATH, file_extension))
-
-    if len(matching_files) > 0:
-        file_name = os.path.basename(matching_files[0])
-        return os.path.splitext(file_name)[0]
+    for language in config['languages']:
+        if language['extension'] == file_extension:
+            return language
     return None
-
-
-def get_command(language):
-    with open(CONFIG_PATH) as f:
-        commands = json.load(f)
-    return commands.get(language)
 
 
 def verify_solution(path, problem_id=None, language=None):
     if language is None:
-        file_extension = os.path.splitext(path)[1]
+        file_extension = os.path.splitext(path)[1].replace('.', '')
         language = get_language_from_file_extension(file_extension)
 
     problem = get_problem(problem_id)
-    command = get_command(language)
-
-    if command is None:
-        command = './{path}'
-
-    process = subprocess.run(command.format(path=path), shell=True,
+    process = subprocess.run(language['command'].format(path=path), shell=True,
                              stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
     output = str(process.stdout, encoding='UTF-8').replace('\n', '')
 

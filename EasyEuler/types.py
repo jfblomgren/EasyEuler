@@ -1,7 +1,7 @@
 import click
 
 
-from .utils import get_problem
+from .utils import get_problem, get_language
 
 
 class ProblemType(click.ParamType):
@@ -20,3 +20,18 @@ class ProblemType(click.ParamType):
             self.fail('A problem with ID %s does not exist' % value, param, ctx)
 
         return problem
+
+
+class LanguageType(click.ParamType):
+    name = 'string'
+
+    def convert(self, value, param, ctx):
+        if value is None:
+            return None
+
+        language = get_language(value)
+
+        if language is None:
+            self.fail('Could not find language %s' % value, param, ctx)
+
+        return language
