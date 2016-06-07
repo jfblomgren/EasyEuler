@@ -66,8 +66,14 @@ def verify_solution(path, problem_id=None, language=None):
         language = get_language_from_file_extension(file_extension)
 
     problem = get_problem(problem_id)
-    process = subprocess.run(language['command'].format(path=path), shell=True,
-                             stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
+
+    if language is None:
+        command = './{path}'
+    else:
+        command = language['command']
+
+    process = subprocess.run(command.format(path=path), shell=True,
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output = str(process.stdout, encoding='UTF-8').replace('\n', '')
 
     if process.returncode > 0:
