@@ -30,29 +30,42 @@ def generate(problem, language, path, overwrite):
 
 @commands.command()
 @click.option('--language', '-l')
+@click.option('--recursive', '-r', is_flag=True)
 @click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
-def verify(path, language):
+def verify(path, language, recursive):
     for path_ in path:
-        valid, status, output = process_path(path_, language)
-        if not valid:
+        if os.path.isdir(path_):
+            if recursive:
+                process_dir(path_, language)
+            else:
+                click.echo('Skipping %s because it is a directory and ' \
+                           '--recursive was not specified' %
+                           click.format_filename(path_))
             continue
 
-        click.echo('Checking output of %s: %s' % (click.format_filename(path_),
-                                                  output))
-        click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
+        validate_file(path_, language)
 
 
-def process_path(path, language):
+def process_dir(path, language):
+    for root, directories, file_names in os.walk(path):
+        for file_name in file_names:
+            validate_file(os.path.join(root, file_name), language)
+
+
+def validate_file(path, language):
     if os.path.isdir(path):
         click.echo('Skipping %s because it is a directory' %
                    click.format_filename(path))
-        return False, None, None
+        return
 
     problem_id = get_problem_id(path)
     if problem_id is None or get_problem(problem_id) is None:
         click.echo('Skipping %s because it does not contain ' \
                    'a valid problem ID' % click.format_filename(path))
-        return False, None, None
+        return
 
     status, output = verify_solution(path, problem_id, language)
-    return True, status, output
+
+    click.echo('Checking output of %s: %s' % (click.format_filename(path),
+                                              output))
+    click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
