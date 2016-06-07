@@ -17,10 +17,11 @@ templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 with open(CONFIG_PATH) as f:
     config = json.load(f)
 
+with open('%s/problems.json' % DATA_PATH) as f:
+    problems = json.load(f)
+
 
 def get_problem(problem_id):
-    with open('%s/problems.json' % DATA_PATH) as f:
-        problems = json.load(f)
     return problems[problem_id - 1] if len(problems) >= problem_id else None
 
 
