@@ -1,8 +1,10 @@
 import json
+import time
 import subprocess
 import os
 import glob
 import re
+import resource
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -60,7 +62,7 @@ def get_language_from_file_extension(file_extension):
     return None
 
 
-def verify_solution(path, problem_id=None, language=None):
+def verify_solution(path, time_execution, problem_id=None, language=None):
     if language is None:
         file_extension = os.path.splitext(path)[1].replace('.', '')
         language = get_language_from_file_extension(file_extension)
@@ -72,8 +74,8 @@ def verify_solution(path, problem_id=None, language=None):
     else:
         command = language['command']
 
-    process = subprocess.run(command.format(path=path), shell=True,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process, execution_time = execute_process(command.format(path=path),
+                                              time_execution)
     output = str(process.stdout, encoding='UTF-8').replace('\n', '')
 
     if process.returncode > 0:
@@ -83,4 +85,25 @@ def verify_solution(path, problem_id=None, language=None):
     else:
         status = 'I'
 
-    return status, output
+    return status, output, execution_time
+
+
+def execute_process(command, time_execution):
+    start_time = get_time()
+    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+
+    if time_execution:
+        end_time = get_time()
+        execution_time = (end_time[0] - start_time[0],
+                          end_time[1] - start_time[1],
+                          end_time[2] - start_time[2])
+    else:
+        execution_time = None
+
+    return process, execution_time
+
+
+def get_time():
+    rs = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return (time.time(), rs.ru_stime, rs.ru_utime)

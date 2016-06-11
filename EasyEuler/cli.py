@@ -1,4 +1,5 @@
 import sys
+import resource
 import os
 
 import click
@@ -32,41 +33,42 @@ def generate(problem, language, path, overwrite):
 @commands.command()
 @click.option('--language', '-l', type=LanguageType())
 @click.option('--recursive', '-r', is_flag=True)
+@click.option('--time', '-t', is_flag=True)
 @click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
-def verify(path, language, recursive):
+def verify(path, language, recursive, time):
     for path_ in path:
         if os.path.isdir(path_):
             if recursive:
-                process_dir(path_, language)
+                process_dir(path_, time, language)
             else:
                 click.echo('Skipping %s because it is a directory and ' \
                            '--recursive was not specified' %
                            click.format_filename(path_))
             continue
 
-        validate_file(path_, language)
+        validate_file(path_, time, language)
 
 
-def process_dir(path, language):
+def process_dir(path, time_execution, language):
     for root, directories, file_names in os.walk(path):
         for file_name in file_names:
-            validate_file(os.path.join(root, file_name), language)
+            validate_file(os.path.join(root, file_name), time_execution, language)
 
 
-def validate_file(path, language):
-    if os.path.isdir(path):
-        click.echo('Skipping %s because it is a directory' %
-                   click.format_filename(path))
-        return
-
+def validate_file(path, time_execution, language):
     problem_id = get_problem_id(path)
     if problem_id is None or get_problem(problem_id) is None:
         click.echo('Skipping %s because it does not contain ' \
                    'a valid problem ID' % click.format_filename(path))
         return
 
-    status, output = verify_solution(path, problem_id, language)
+    status, output, execution_time = verify_solution(path, time_execution,
+                                                     problem_id, language)
 
     click.echo('Checking output of %s: %s' % (click.format_filename(path),
                                               output))
     click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
+    if execution_time is not None:
+        click.echo('Time - wall: %s, system: %s, user: %s' % (execution_time[0],
+                                                              execution_time[1],
+                                                              execution_time[2]))
