@@ -62,12 +62,11 @@ def validate_file(path, time_execution, language):
                    'a valid problem ID' % click.format_filename(path))
         return
 
+    click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
     status, output, execution_time = verify_solution(path, time_execution,
                                                      problem_id, language)
+    click.secho(output, fg={'C': 'green', 'I': 'red', 'E': 'red'}[status])
 
-    click.echo('Checking output of %s: %s' % (click.format_filename(path),
-                                              output))
-    click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
     if execution_time is not None:
-        click.echo('CPU times: user: {}, system: {}, total: {}'.format(*execution_time[1:]))
-        click.echo('Wall time: %s' % execution_time[0])
+        click.secho('CPU times: user: {}, system: {}, total: {}'.format(*execution_time[1:]), fg='cyan')
+        click.secho('Wall time: %s\n' % execution_time[0], fg='cyan')
