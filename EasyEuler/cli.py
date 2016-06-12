@@ -69,6 +69,5 @@ def validate_file(path, time_execution, language):
                                               output))
     click.echo({'C': 'Correct', 'I': 'Incorrect', 'E': 'Error'}[status])
     if execution_time is not None:
-        click.echo('Time - wall: %s, system: %s, user: %s' % (execution_time[0],
-                                                              execution_time[1],
-                                                              execution_time[2]))
+        click.echo('CPU times: user: {}, system: {}, total: {}'.format(*execution_time[1:]))
+        click.echo('Wall time: %s' % execution_time[0])
