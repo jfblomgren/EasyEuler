@@ -70,17 +70,12 @@ def verify_solution(path, time_execution, problem_id=None, language=None):
         language = get_language_from_file_extension(file_extension)
 
     problem = get_problem(problem_id)
-
-    if language is None:
-        command = './{path}'
-    else:
-        command = language['command']
-
+    command = './{path}' if language is None else language['command']
     process, execution_time = execute_process(command.format(path=path),
                                               time_execution)
     output = str(process.stdout, encoding='UTF-8').replace('\n', '')
 
-    if process.returncode > 0:
+    if process.returncode != 0:
         status = 'E'
     elif output == problem['answer']:
         status = 'C'
@@ -91,18 +86,18 @@ def verify_solution(path, time_execution, problem_id=None, language=None):
 
 
 def execute_process(command, time_execution):
-    start_time = get_time()
-    process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-
     if time_execution:
+        start_time = get_time()
+        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
         end_time = get_time()
-        execution_time = [end_time[0] - start_time[0],
-                          end_time[1] - start_time[1],
-                          end_time[2] - start_time[2]]
-        execution_time.append(sum(execution_time[1:]))
-        execution_time = list(map(format_time, execution_time))
+
+        # Subtract the start times from the end times and format the results
+        execution_time = {key: format_time(end_time[key] - start_time[key])
+                          for key in end_time}
     else:
+        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
         execution_time = None
 
     return process, execution_time
@@ -110,31 +105,39 @@ def execute_process(command, time_execution):
 
 def get_time():
     rs = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return (time.time(), rs.ru_stime, rs.ru_utime)
+    return {'user': rs.ru_utime, 'system': rs.ru_stime,
+            'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
 
 
-def format_time(timespan):
+def format_long_time(timespan):
     """
-    Formats a timespan in a human-readable form.
-    Courtesy of IPython.
+    Formats a long timespan in a human-readable form with a
+    precision of a 100th of a second.
+
     """
-    if timespan >= 60:
-        # If the time is greater than one minute,
-        # precision is reduced to a 100th of a second.
-        formatted_time = []
-        units = (('d', 24 * 60 * 60), ('h', 60 * 60), ('m', 60), ('s', 1))
 
-        for unit, length in units:
-            value = int(timespan / length)
+    formatted_time = []
+    units = (('d', 24 * 60 * 60), ('h', 60 * 60), ('m', 60), ('s', 1))
 
-            if value > 0:
-                timespan %= length
-                formatted_time.append('%i%s' % (value, unit))
+    for unit, length in units:
+        value = int(timespan / length)
 
-            if timespan < 1:
-                break
+        if value > 0:
+            timespan %= length
+            formatted_time.append('%i%s' % (value, unit))
 
-        return ' '.join(formatted_time)
+        if timespan < 1:
+            break
+
+    return ' '.join(formatted_time)
+
+
+def format_short_time(timespan):
+    """
+    Formats a short timespan in a human-readable form with a
+    precision of a billionth of a second.
+
+    """
 
     scaling = (1, 1e3, 1e6, 1e9)
     units = ['s', 'ms', 'us', 'ns']
@@ -153,3 +156,17 @@ def format_time(timespan):
         order = 3
 
     return '%.*g%s' % (3, timespan * scaling[order], units[order])
+
+
+def format_time(timespan):
+    """
+    Formats a timespan in a human-readable form.
+    Courtesy of IPython.
+
+    """
+
+    if timespan >= 60:
+        # If the time is greater than one minute,
+        # precision is reduced to a 100th of a second.
+        return format_long_time(timespan)
+    return format_short_time(timespan)

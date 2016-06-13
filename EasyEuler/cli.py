@@ -39,7 +39,7 @@ def verify(path, language, recursive, time):
     for path_ in path:
         if os.path.isdir(path_):
             if recursive:
-                process_dir(path_, time, language)
+                validate_directory_files(path_, time, language)
             else:
                 click.echo('Skipping %s because it is a directory and ' \
                            '--recursive was not specified' %
@@ -49,7 +49,7 @@ def verify(path, language, recursive, time):
         validate_file(path_, time, language)
 
 
-def process_dir(path, time_execution, language):
+def validate_directory_files(path, time_execution, language):
     for root, directories, file_names in os.walk(path):
         for file_name in file_names:
             validate_file(os.path.join(root, file_name), time_execution, language)
@@ -68,5 +68,5 @@ def validate_file(path, time_execution, language):
     click.secho(output, fg={'C': 'green', 'I': 'red', 'E': 'red'}[status])
 
     if execution_time is not None:
-        click.secho('CPU times: user: {}, system: {}, total: {}'.format(*execution_time[1:]), fg='cyan')
-        click.secho('Wall time: %s\n' % execution_time[0], fg='cyan')
+        click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
+                    'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
