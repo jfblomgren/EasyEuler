@@ -73,14 +73,16 @@ def verify_solution(path, time_execution, problem_id=None, language=None):
     command = './{path}' if language is None else language['command']
     process, execution_time = execute_process(command.format(path=path),
                                               time_execution)
-    output = str(process.stdout, encoding='UTF-8').replace('\n', '')
 
     if process.returncode != 0:
         status = 'E'
-    elif output == problem['answer']:
-        status = 'C'
+        output = str(process.stderr, encoding='UTF-8')
     else:
-        status = 'I'
+        output = str(process.stdout, encoding='UTF-8').replace('\n', '')
+        if output == problem['answer']:
+            status = 'C'
+        else:
+            status = 'I'
 
     return status, output, execution_time
 
