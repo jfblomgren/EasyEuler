@@ -17,7 +17,7 @@ commands = click.Group()
 @click.argument('problem', type=ProblemType())
 @click.argument('language', type=LanguageType(),
                 required=False, default='python')
-def generate(problem, language, path, overwrite):
+def create(problem, language, path, overwrite):
     try:
         path, success = write_to_file(problem, language, path, overwrite)
     except (FileNotFoundError, PermissionError) as e:
