@@ -16,6 +16,8 @@ DATA_PATH = os.path.join(BASE_PATH, 'data')
 TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
 CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
 
+PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
+
 templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 
 with open(CONFIG_PATH) as f:
@@ -53,7 +55,7 @@ def write_to_file(problem, language, path=None, overwrite=False):
 
 
 def get_problem_id(path):
-    problem_id = re.findall(r'\D*([1-9]\d{0,2}).*', path)
+    problem_id = PROBLEM_ID_REGEX.findall(path)
     return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
