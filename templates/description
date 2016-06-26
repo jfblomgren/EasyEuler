@@ -2,8 +2,8 @@ Problem {{ id }}: {{ name }}
 
 {{ description }}
 
-{% if resources %}
-This problem has the following references:
+{%- if resources -%}
+This problem references the following resources:
 {% for resource in resources %}
 {{ resource }}
 {%- endfor -%}
