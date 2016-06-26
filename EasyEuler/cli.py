@@ -12,12 +12,25 @@ commands = click.Group()
 
 
 @commands.command()
-@click.option('--path', '-p', type=click.Path())
-@click.option('--overwrite', '-o', is_flag=True)
+@click.option('--path', '-p', type=click.Path(),
+              help='Writes the file to PATH.')
+@click.option('--overwrite', '-o', is_flag=True,
+              help='Overwrite the file if it already exists.')
 @click.argument('problem', type=ProblemType())
 @click.argument('language', type=LanguageType(),
                 required=False, default='python')
 def create(problem, language, path, overwrite):
+    """
+    Create the file for a problem.
+
+    Simply specify a valid problem ID and the file will be created at
+    euler_<id>.<extension> (if the PATH option isn't specified).
+
+    Optionally, the LANGUAGE argument can be specified, which will then be used
+    to identify an appropriate template for the file.
+
+    """
+
     try:
         path, success = write_to_file(problem, language, path, overwrite)
     except (FileNotFoundError, PermissionError) as e:
@@ -31,12 +44,29 @@ def create(problem, language, path, overwrite):
 
 
 @commands.command()
-@click.option('--language', '-l', type=LanguageType())
-@click.option('--recursive', '-r', is_flag=True)
-@click.option('--time', '-t', is_flag=True)
-@click.option('--errors', '-e', is_flag=True)
+@click.option('--language', '-l', type=LanguageType(),
+              help='The language of the file(s).')
+@click.option('--recursive', '-r', is_flag=True,
+              help='Verify files in specified directory paths.')
+@click.option('--time', '-t', is_flag=True,
+              help='Time the execution of files.')
+@click.option('--errors', '-e', is_flag=True,
+              help='Show errors.')
 @click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
 def verify(path, language, recursive, time, errors):
+    """
+    Verify the solution to a problem.
+
+    Runs the appropriate command for a language (specified in the configuration
+    file) with the file path(s) as arguments.
+
+    If the LANGUAGE option isn't specified, it will be identified based on the
+    file extension.
+
+    Similarly, the problem ID will be identified based on the file name.
+
+    """
+
     for path_ in path:
         if os.path.isdir(path_):
             if recursive:
