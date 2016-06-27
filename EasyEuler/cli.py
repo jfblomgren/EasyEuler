@@ -4,7 +4,8 @@ import os
 
 import click
 
-from .utils import write_to_file, get_problem, get_problem_id, verify_solution
+from .utils import (write_to_file, get_problem, get_problem_id, verify_solution,
+                    generate_problem_resources, generate_all_resources)
 from .types import ProblemType, LanguageType
 
 
@@ -78,6 +79,18 @@ def verify(path, language, recursive, time, errors):
             continue
 
         validate_file(path_, time, language, errors)
+
+
+@commands.command('generate-resources')
+@click.option('--path', '-p', type=click.Path(), default='.')
+@click.argument('problem', type=ProblemType(), required=False)
+def generate_resources(problem, path):
+    if problem is None:
+        generate_all_resources(path)
+    else:
+        if 'resources' not in problem:
+            sys.exit('Problem %s has no resource files' % problem['id'])
+        generate_problem_resources(problem, path)
 
 
 def validate_directory_files(path, time_execution, language, errors):

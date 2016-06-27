@@ -7,6 +7,7 @@ import os
 import glob
 import re
 import resource
+import shutil
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -174,3 +175,14 @@ def format_time(timespan):
         # precision is reduced to a 100th of a second.
         return format_long_time(timespan)
     return format_short_time(timespan)
+
+
+def generate_problem_resources(problem, path):
+    for file_name in problem['resources']:
+        shutil.copy('%s/resources/%s' % (DATA_PATH, file_name), path)
+
+
+def generate_all_resources(path):
+    for problem in problems:
+        if 'resources' in problem:
+            generate_problem_resources(problem, path)
