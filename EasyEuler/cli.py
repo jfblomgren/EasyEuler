@@ -82,8 +82,8 @@ def verify(path, language, recursive, time, errors):
 
 
 @commands.command('generate-resources')
-@click.option('--path', '-p', type=click.Path(), default='.',
-              help='Creates the file(s) at PATH.')
+@click.option('--path', '-p', type=click.Path(writable=True, readable=False),
+              default='.', help='Creates the file(s) at PATH.')
 @click.argument('problem', type=ProblemType(), required=False)
 def generate_resources(problem, path):
     """
