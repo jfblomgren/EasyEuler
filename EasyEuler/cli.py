@@ -82,9 +82,20 @@ def verify(path, language, recursive, time, errors):
 
 
 @commands.command('generate-resources')
-@click.option('--path', '-p', type=click.Path(), default='.')
+@click.option('--path', '-p', type=click.Path(), default='.',
+              help='Creates the file(s) at PATH.')
 @click.argument('problem', type=ProblemType(), required=False)
 def generate_resources(problem, path):
+    """
+    Generate the resource files for problems.
+
+    These resources are either images - serving as helpful illustrations -
+    or text files - containing specific data - referenced in the problem.
+
+    If the PROBLEM argument isn't specified, all resources will be generated.
+
+    """
+
     if problem is None:
         generate_all_resources(path)
     else:
