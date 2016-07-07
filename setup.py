@@ -10,6 +10,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        easyeuler=EasyEuler.cli:commands
+        easyeuler=EasyEuler.cli:cli
     '''
 )
