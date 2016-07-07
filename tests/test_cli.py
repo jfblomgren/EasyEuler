@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from EasyEuler.cli import commands
+from EasyEuler.cli import cli
 
 from click.testing import CliRunner
 
@@ -11,17 +11,17 @@ class CommandLineInterfaceTestCase(unittest.TestCase):
         self.runner = CliRunner()
 
 
-class TestGenerateCommand(CommandLineInterfaceTestCase):
+class TestcreateCommand(CommandLineInterfaceTestCase):
     def test_file_creation(self):
         with self.runner.isolated_filesystem():
-            self.runner.invoke(commands, ['generate', '1'])
-            self.runner.invoke(commands, ['generate', '1', 'c'])
+            self.runner.invoke(cli, ['create', '1'])
+            self.runner.invoke(cli, ['create', '1', 'c'])
 
             self.assertTrue(os.path.exists('euler_001.py'))
             self.assertTrue(os.path.exists('euler_001.c'))
 
     def test_invalid_problem_id(self):
-        result = self.runner.invoke(commands, ['generate', '9999'])
+        result = self.runner.invoke(cli, ['create', '9999'])
         self.assertEqual(result.exit_code, 2)
 
 
