@@ -8,39 +8,26 @@ import glob
 import re
 import resource
 
-from jinja2 import Environment, FileSystemLoader
+from EasyEuler import data
 
-
-BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-DATA_PATH = os.path.join(BASE_PATH, 'data')
-TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
-CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
 
 PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
 
-templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
-
-with open(CONFIG_PATH) as f:
-    config = json.load(f)
-
-with open('%s/problems.json' % DATA_PATH) as f:
-    problems = json.load(f)
-
 
 def get_problem(problem_id):
-    return problems[problem_id - 1] if len(problems) >= problem_id else None
+    return data.problems[problem_id - 1] if len(data.problems) >= problem_id else None
 
 
 def get_language(name):
-    for language in config['languages']:
+    for language in data.config['languages']:
         if language['name'] == name:
             return language
     return None
 
 
 def write_to_file(problem, language, path=None, overwrite=False):
-    template = templates.get_template(language.get('template',
-                                                   language['name']))
+    template = data.templates.get_template(language.get('template',
+                                                         language['name']))
 
     if path is None:
         path = 'euler_%03d.%s' % (problem['id'], language['extension'])
@@ -60,7 +47,7 @@ def get_problem_id(path):
 
 
 def get_language_from_file_extension(file_extension):
-    for language in config['languages']:
+    for language in data.config['languages']:
         if language['extension'] == file_extension:
             return language
     return None
