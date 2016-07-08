@@ -4,7 +4,7 @@ import math
 
 import click
 
-from EasyEuler.types import LanguageType, ProblemType
+from EasyEuler.types import LanguageType
 from EasyEuler.utils import verify_solution, get_problem, get_problem_id
 
 

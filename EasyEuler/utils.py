@@ -23,7 +23,7 @@ def get_language(name):
 
 def write_to_file(problem, language, path=None, overwrite=False):
     template = data.templates.get_template(language.get('template',
-                                                         language['name']))
+                                                        language['name']))
 
     if path is None:
         path = 'euler_%03d.%s' % (problem['id'], language['extension'])

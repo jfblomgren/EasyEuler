@@ -28,8 +28,8 @@ def cli(problem, language, path, overwrite):
 
     try:
         path, success = write_to_file(problem, language, path, overwrite)
-    except (FileNotFoundError, PermissionError) as e:
-        sys.exit('An exception occurred: %s' % e)
+    except (FileNotFoundError, PermissionError) as exception:
+        sys.exit('An exception occurred: %s' % exception)
 
     if not success:
         sys.exit('%s already exists. Use the --overwrite flag to overwrite it' %
