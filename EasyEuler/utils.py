@@ -3,6 +3,7 @@ import subprocess
 import os
 import re
 import resource
+import shutil
 
 from EasyEuler import data
 
@@ -93,3 +94,14 @@ def get_time():
     rs = resource.getrusage(resource.RUSAGE_CHILDREN)
     return {'user': rs.ru_utime, 'system': rs.ru_stime,
             'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
+
+
+def generate_problem_resources(problem, path):
+    for file_name in problem['resources']:
+        shutil.copy('%s/resources/%s' % (data.DATA_PATH, file_name), path)
+
+
+def generate_all_resources(path):
+    for problem in data.problems:
+        if 'resources' in problem:
+            generate_problem_resources(problem, path)
