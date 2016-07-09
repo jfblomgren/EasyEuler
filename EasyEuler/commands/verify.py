@@ -1,11 +1,18 @@
 import os
+import re
 import sys
 import math
+import subprocess
+import time
+import resource
 
 import click
 
 from EasyEuler.types import LanguageType
-from EasyEuler.utils import verify_solution, get_problem, get_problem_id
+from EasyEuler.utils import get_problem, get_language
+
+
+PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
 
 
 @click.command()
@@ -49,7 +56,8 @@ def cli(paths, language, recursive, time, errors):
 def validate_directory_files(path, time_execution, language, errors):
     for root, directories, file_names in os.walk(path):
         for file_name in file_names:
-            validate_file(os.path.join(root, file_name), time_execution, language, errors)
+            validate_file(os.path.join(root, file_name), time_execution,
+                          language, errors)
 
 
 def validate_file(path, time_execution, language, errors):
@@ -58,20 +66,62 @@ def validate_file(path, time_execution, language, errors):
         click.echo('Skipping %s because it does not contain '
                    'a valid problem ID' % click.format_filename(path))
         return
+    problem = get_problem(problem_id)
+
+    if language is None:
+        file_extension = os.path.splitext(path)[1].replace('.', '')
+        language = get_language(file_extension, 'extension')
+
+    verify_solution(path, time_execution, problem, language, errors)
+
+
+def get_problem_id(path):
+    problem_id = PROBLEM_ID_REGEX.findall(path)
+    return int(problem_id[0]) if len(problem_id) > 0 else None
+
+
+def verify_solution(path, time_execution, problem, language, errors):
+    command = './{path}' if language is None else language['command']
 
     click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
-    status, output, execution_time = verify_solution(path, time_execution,
-                                                     problem_id, language)
-    execution_time = {key: format_time(value)
-                      for key, value in execution_time.items()}
 
-    click.secho({'C': output, 'I': output or '[no output]',
-                 'E': '\n%s' % output if errors else '[error]'}[status],
-                fg='red' if status in ('I', 'E') else 'green')
+    process, execution_time = execute_process(command.format(path=path),
+                                              time_execution)
 
-    if execution_time is not None:
+    if process.returncode != 0:
+        output = str(process.stderr, encoding='UTF-8')
+        click.secho('\n%s' % output if errors else '[error]', fg='red')
+    else:
+        output = str(process.stdout, encoding='UTF-8').replace('\n', '')
+        click.secho(output or '[no output]',
+                    fg='green' if output == problem['answer'] else 'red')
+
+    if time_execution:
         click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
                     'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
+
+
+def execute_process(command, time_execution):
+    if time_execution:
+        start_time = get_time()
+        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        end_time = get_time()
+
+        execution_time = {key: format_time(end_time[key] - start_time[key])
+                          for key in end_time}
+    else:
+        process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE)
+        execution_time = None
+
+    return process, execution_time
+
+
+def get_time():
+    rs = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return {'user': rs.ru_utime, 'system': rs.ru_stime,
+            'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
 
 
 def format_long_time(timespan):

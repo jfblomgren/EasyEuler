@@ -1,7 +1,9 @@
+import os
 import sys
 
 import click
 
+from EasyEuler import data
 from EasyEuler.types import ProblemType, LanguageType
 from EasyEuler.utils import write_to_file
 
@@ -26,13 +28,24 @@ def cli(problem, language, path, overwrite):
 
     """
 
+    if path is None:
+        path = 'euler_%03d.%s' % (problem['id'], language['extension'])
+
     try:
-        path, success = write_to_file(problem, language, path, overwrite)
+        write_to_file(problem, language, path, overwrite)
     except (FileNotFoundError, PermissionError) as exception:
         sys.exit('An exception occurred: %s' % exception)
 
-    if not success:
+    click.echo('Written to %s' % click.format_filename(path))
+
+
+def write_to_file(problem, language, path, overwrite):
+    template = data.templates.get_template(language.get('template',
+                                                        language['name']))
+
+    if os.path.exists(path) and not overwrite:
         sys.exit('%s already exists. Use the --overwrite flag to overwrite it' %
                  click.format_filename(path))
 
-    click.echo('Written to %s' % click.format_filename(path))
+    with open(path, 'w') as f:
+        f.write(template.render(**problem))
