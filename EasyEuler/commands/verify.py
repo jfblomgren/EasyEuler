@@ -17,8 +17,9 @@ from EasyEuler.utils import verify_solution, get_problem, get_problem_id
               help='Time the execution of files.')
 @click.option('--errors', '-e', is_flag=True,
               help='Show errors.')
-@click.argument('path', type=click.Path(exists=True, readable=True), nargs=-1)
-def cli(path, language, recursive, time, errors):
+@click.argument('paths', type=click.Path(exists=True, readable=True), nargs=-1,
+                metavar='[PATH]...')
+def cli(paths, language, recursive, time, errors):
     """
     Verify the solution to a problem.
 
@@ -32,17 +33,17 @@ def cli(path, language, recursive, time, errors):
 
     """
 
-    for path_ in path:
-        if os.path.isdir(path_):
+    for path in paths:
+        if os.path.isdir(path):
             if recursive:
-                validate_directory_files(path_, time, language, errors)
+                validate_directory_files(path, time, language, errors)
             else:
                 click.echo('Skipping %s because it is a directory and '
                            '--recursive was not specified' %
-                           click.format_filename(path_))
+                           click.format_filename(path))
             continue
 
-        validate_file(path_, time, language, errors)
+        validate_file(path, time, language, errors)
 
 
 def validate_directory_files(path, time_execution, language, errors):
