@@ -62,14 +62,14 @@ def validate_file(path, time_execution, language, errors):
     click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
     status, output, execution_time = verify_solution(path, time_execution,
                                                      problem_id, language)
-    execution_time = {key: format_time(value)
-                      for key, value in execution_time.items()}
 
     click.secho({'C': output, 'I': output or '[no output]',
                  'E': '\n%s' % output if errors else '[error]'}[status],
                 fg='red' if status in ('I', 'E') else 'green')
 
     if execution_time is not None:
+        execution_time = {key: format_time(value)
+                          for key, value in execution_time.items()}
         click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
                     'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
 
