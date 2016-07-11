@@ -9,7 +9,7 @@ and intends to provide the same functionality for a larger variety of languages.
 
 TODO
 ====
-- [ ] Add resource generation command
+- [x] Add resource generation command
 - [ ] Add commands for browsing problems
 - [ ] Add unit tests
 
