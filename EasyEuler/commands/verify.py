@@ -10,7 +10,7 @@ import click
 
 from EasyEuler import data
 from EasyEuler.types import LanguageType
-from EasyEuler.utils import get_problem
+from EasyEuler.utils import get_problem, get_language
 
 
 PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
@@ -87,17 +87,10 @@ def get_problem_id(path):
     return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
-def get_language_from_file_extension(file_extension):
-    for language in data.config['languages']:
-        if language['extension'] == file_extension:
-            return language
-    return None
-
-
 def verify_solution(path, time_execution, problem_id=None, language=None):
     if language is None:
         file_extension = os.path.splitext(path)[1].replace('.', '')
-        language = get_language_from_file_extension(file_extension)
+        language = get_language(file_extension, 'extension')
 
     problem = get_problem(problem_id)
     command = './{path}' if language is None else language['command']
