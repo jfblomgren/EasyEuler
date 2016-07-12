@@ -3,6 +3,7 @@ import os
 
 from EasyEuler import data
 from EasyEuler.cli import cli
+from EasyEuler.utils import get_problem
 
 from click.testing import CliRunner
 
@@ -65,3 +66,52 @@ class TestGenerateResourcesCommand(CommandTestCase):
     def test_problem_with_no_resources(self):
         result = self.runner.invoke(cli, ['generate-resources', '1'])
         self.assertEqual(result.exit_code, 1)
+
+
+class TestVerifyCommand(CommandTestCase):
+    def test_problem_verification(self):
+        with self.runner.isolated_filesystem():
+            problem1 = get_problem(1)
+            problem2 = get_problem(2)
+
+            with open('euler_001.py', 'w') as f:
+                f.write('print(%s)' % problem1['answer'])
+
+            with open('euler_002.py', 'w') as f:
+                f.write('print(%s)' % problem2['answer'])
+
+            result = self.runner.invoke(cli, ['verify',
+                                              'euler_001.py', 'euler_002.py'])
+            output = str(result.output_bytes, encoding='UTF-8')
+
+            self.assertIn(problem1['answer'], output)
+            self.assertIn(problem2['answer'], output)
+
+    def test_recursive_verification(self):
+        with self.runner.isolated_filesystem():
+            os.mkdir('test')
+            problem = get_problem(1)
+
+            with open('test/euler_001.py', 'w') as f:
+                f.write('print(%s)' % problem['answer'])
+
+            result = self.runner.invoke(cli, ['verify', '--recursive',
+                                              'test'])
+            output = str(result.output_bytes, encoding='UTF-8')
+
+            self.assertIn(problem['answer'], output)
+
+    def test_show_errors(self):
+        with self.runner.isolated_filesystem():
+            with open('euler_001.py', 'w') as f:
+                f.write('print(')
+
+            result = self.runner.invoke(cli, ['verify', 'euler_001.py'])
+            output = str(result.output_bytes, encoding='UTF-8')
+            result_with_errors = self.runner.invoke(cli, ['verify', '--errors',
+                                        'euler_001.py'])
+            output_with_errors = str(result_with_errors.output_bytes,
+                                     encoding='UTF-8')
+
+            self.assertIn('[error]', output)
+            self.assertIn('SyntaxError', output_with_errors)
