@@ -2476,6 +2476,9 @@
     {
         "description": "An infinite sequence of real numbers a(n) is defined for all integers n as\nfollows:\n\n[Image: 330_formula.gif]\n\nFor example,\n\n        1     1     1\na(0) = --- + --- + --- + ... = e - 1\n        1!    2!    3!\n\n       e \u2212 1    1     1\na(1) = ----- + --- + --- + ... = 2e - 3\n         1!     2!    3!\n\n       2e \u2212 3   e \u2212 1    1          7\na(2) = ------ + ----- + --- + ... = - e - 6\n         1!       2!     3!         2\n\nwith e = 2.7182818... being Euler's constant.\n\nIt can be shown that a(n) is of the form:\n\nA(n) e + B(n)\n-------------\n      n!\n\nfor integers A(n) and B(n).\n\nFor example:\n\n        328161643e \u2212 652694486\na(10) = ----------------------\n                  10!\n\nFind A(10^9) + B(10^9) and give your answer mod 77 777 777.\n",
         "answer": "15955822",
+        "resources": [
+            "330_formula.gif"
+        ],
         "difficulty": 70,
         "name": "Euler's Number",
         "id": 330
