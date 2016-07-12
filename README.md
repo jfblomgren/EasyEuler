@@ -10,8 +10,9 @@ and intends to provide the same functionality for a larger variety of languages.
 TODO
 ====
 - [x] Add resource generation command
+- [x] Add unit tests
 - [ ] Add commands for browsing problems
-- [ ] Add unit tests
+- [ ] Add more documentation
 
 
 Acknowledgements
