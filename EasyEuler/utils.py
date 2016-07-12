@@ -2,7 +2,10 @@ from EasyEuler import data
 
 
 def get_problem(problem_id):
-    return data.problems[problem_id - 1] if len(data.problems) >= problem_id else None
+    if problem_id < 1 or len(data.problems) < problem_id:
+        # We don't want a negative index, because it'll wrap back around.
+        return None
+    return data.problems[problem_id - 1]
 
 
 def get_language(value, key='name'):
