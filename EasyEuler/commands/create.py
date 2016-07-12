@@ -27,29 +27,26 @@ def cli(problem, language, path, overwrite):
 
     """
 
+    if path is None:
+        path = 'euler_%03d.%s' % (problem['id'], language['extension'])
+
     try:
-        path, success = write_to_file(problem, language, path, overwrite)
+        write_to_file(problem, language, path, overwrite)
     except (FileNotFoundError, PermissionError) as exception:
         sys.exit('An exception occurred: %s' % exception)
-
-    if not success:
+    except FileExistsError:
         sys.exit('%s already exists. Use the --overwrite flag to overwrite it' %
                  click.format_filename(path))
 
     click.echo('Written to %s' % click.format_filename(path))
 
 
-def write_to_file(problem, language, path=None, overwrite=False):
+def write_to_file(problem, language, path, overwrite):
     template = data.templates.get_template(language.get('template',
                                                         language['name']))
 
-    if path is None:
-        path = 'euler_%03d.%s' % (problem['id'], language['extension'])
-
     if os.path.exists(path) and not overwrite:
-        return (path, False)
+        raise FileExistsError
 
     with open(path, 'w') as f:
         f.write(template.render(**problem))
-
-    return (path, True)
