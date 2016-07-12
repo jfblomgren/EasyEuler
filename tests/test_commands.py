@@ -1,6 +1,7 @@
 import unittest
 import os
 
+from EasyEuler import data
 from EasyEuler.cli import cli
 
 from click.testing import CliRunner
@@ -48,5 +49,19 @@ class TestCreateCommand(CommandTestCase):
         self.assertEqual(result.exit_code, 2)
 
 
-if __name__ == '__main__':
-    unittest.main()
+class TestGenerateResourcesCommand(CommandTestCase):
+    def test_generate_problem_resources(self):
+        with self.runner.isolated_filesystem():
+            self.runner.invoke(cli, ['generate-resources', '22'])
+            self.assertTrue(os.path.exists('names.txt'))
+
+    def test_generate_all_resources(self):
+        with self.runner.isolated_filesystem():
+            self.runner.invoke(cli, ['generate-resources'])
+
+            for filename in os.listdir('%s/resources' % data.DATA_PATH):
+                self.assertTrue(os.path.exists(filename))
+
+    def test_problem_with_no_resources(self):
+        result = self.runner.invoke(cli, ['generate-resources', '1'])
+        self.assertEqual(result.exit_code, 1)
