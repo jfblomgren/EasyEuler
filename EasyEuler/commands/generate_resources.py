@@ -25,14 +25,16 @@ def cli(problem, path):
     if problem is None:
         generate_all_resources(path)
     else:
-        if 'resources' not in problem:
-            sys.exit('Problem %s has no resource files' % problem['id'])
         generate_problem_resources(problem, path)
 
 
 def generate_problem_resources(problem, path):
-    for file_name in problem['resources']:
-        shutil.copy('%s/resources/%s' % (data.DATA_PATH, file_name), path)
+    if 'resources' not in problem:
+        sys.exit('Problem %s has no resource files' % problem['id'])
+
+    for filename in problem['resources']:
+        shutil.copy('%s/resources/%s' % (data.DATA_PATH, filename), path)
+        click.echo('Created %s at path %s' % (filename, path))
 
 
 def generate_all_resources(path):

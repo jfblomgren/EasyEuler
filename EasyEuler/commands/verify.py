@@ -1,14 +1,13 @@
 import os
-import time
+import re
 import sys
 import math
-import re
 import subprocess
+import time
 import resource
 
 import click
 
-from EasyEuler import data
 from EasyEuler.types import LanguageType
 from EasyEuler.utils import get_problem, get_language
 
@@ -57,7 +56,8 @@ def cli(paths, language, recursive, time, errors):
 def validate_directory_files(path, time_execution, language, errors):
     for root, directories, file_names in os.walk(path):
         for file_name in file_names:
-            validate_file(os.path.join(root, file_name), time_execution, language, errors)
+            validate_file(os.path.join(root, file_name), time_execution,
+                          language, errors)
 
 
 def validate_file(path, time_execution, language, errors):
@@ -66,20 +66,13 @@ def validate_file(path, time_execution, language, errors):
         click.echo('Skipping %s because it does not contain '
                    'a valid problem ID' % click.format_filename(path))
         return
+    problem = get_problem(problem_id)
 
-    click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
-    status, output, execution_time = verify_solution(path, time_execution,
-                                                     problem_id, language)
+    if language is None:
+        file_extension = os.path.splitext(path)[1].replace('.', '')
+        language = get_language(file_extension, 'extension')
 
-    click.secho({'C': output, 'I': output or '[no output]',
-                 'E': '\n%s' % output if errors else '[error]'}[status],
-                fg='red' if status in ('I', 'E') else 'green')
-
-    if execution_time is not None:
-        execution_time = {key: format_time(value)
-                          for key, value in execution_time.items()}
-        click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
-                    'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
+    verify_solution(path, time_execution, problem, language, errors)
 
 
 def get_problem_id(path):
@@ -87,27 +80,25 @@ def get_problem_id(path):
     return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
-def verify_solution(path, time_execution, problem_id=None, language=None):
-    if language is None:
-        file_extension = os.path.splitext(path)[1].replace('.', '')
-        language = get_language(file_extension, 'extension')
-
-    problem = get_problem(problem_id)
+def verify_solution(path, time_execution, problem, language, errors):
     command = './{path}' if language is None else language['command']
+
+    click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
+
     process, execution_time = execute_process(command.format(path=path),
                                               time_execution)
 
     if process.returncode != 0:
-        status = 'E'
         output = str(process.stderr, encoding='UTF-8')
+        click.secho('\n%s' % output if errors else '[error]', fg='red')
     else:
         output = str(process.stdout, encoding='UTF-8').replace('\n', '')
-        if output == problem['answer']:
-            status = 'C'
-        else:
-            status = 'I'
+        click.secho(output or '[no output]',
+                    fg='green' if output == problem['answer'] else 'red')
 
-    return status, output, execution_time
+    if time_execution:
+        click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
+                    'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
 
 
 def execute_process(command, time_execution):
@@ -117,7 +108,7 @@ def execute_process(command, time_execution):
                                  stderr=subprocess.PIPE)
         end_time = get_time()
 
-        execution_time = {key: end_time[key] - start_time[key]
+        execution_time = {key: format_time(end_time[key] - start_time[key])
                           for key in end_time}
     else:
         process = subprocess.run(command, shell=True, stdout=subprocess.PIPE,
