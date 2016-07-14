@@ -4,7 +4,6 @@ import sys
 import math
 import subprocess
 import time
-import resource
 
 import click
 
@@ -97,8 +96,13 @@ def verify_solution(path, time_execution, problem, language, errors):
                     fg='green' if output == problem['answer'] else 'red')
 
     if time_execution:
-        click.secho('CPU times - user: {user}, system: {system}, total: {total}\n'
-                    'Wall time: {wall}\n'.format(**execution_time), fg='cyan')
+        if 'user' in execution_time:
+            execution_time_msg = 'CPU times - user: {user}, ' \
+                                 'system: {system}, total: {total}\n' \
+                                 'Wall time: {wall}\n'
+        else:
+            execution_time_msg = 'Time: {wall}\n'
+        click.secho(execution_time_msg.format(**execution_time), fg='cyan')
 
 
 def execute_process(command, time_execution):
@@ -118,10 +122,18 @@ def execute_process(command, time_execution):
     return process, execution_time
 
 
-def get_time():
-    rs = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return {'user': rs.ru_utime, 'system': rs.ru_stime,
-            'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
+try:
+    import resource
+    def get_time():
+        rs = resource.getrusage(resource.RUSAGE_CHILDREN)
+        return {'user': rs.ru_utime, 'system': rs.ru_stime,
+                'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
+except ImportError:
+    # The resource module only exists on UNIX.
+    # This is a different platform, so we can't 
+    # provide user and system times.
+    def get_time():
+        return {'wall': time.time()}
 
 
 def format_long_time(timespan):
