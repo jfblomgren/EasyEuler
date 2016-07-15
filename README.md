@@ -108,10 +108,26 @@ exceed four million.
 ```
 
 
-TODO
-====
-- [ ] Improve `list` command
-- [ ] Add more configuration commands
+Configuration
+=============
+EasyEuler is designed to be configurable and adaptable to any language
+you may want to use it with.
+Adding a new language is as easy as adding a few lines to the `config.json` file.
+
+A language has the following attributes:
+
+- `name` - the name of the language.
+- `extension` - the file extension of the language.
+- `command` - the command to execute with the `verify` command.
+- `template` - the name of the template (located in `templates/`)
+
+Templates use the [Jinja2](http://jinja.pocoo.org) templating engine.
+
+
+Requirements
+============
+EasyEuler requires [Python 3.5+](https://www.python.org/downloads/release/python-350/),
+along with the [Click](http://click.pocoo.org) and [Jinja2](http://jinja.pocoo.org) modules.
 
 
 Acknowledgements
