@@ -2,7 +2,8 @@ Problem {{ id }}: {{ name }}
 
 {{ description }}
 
-{%- if resources -%}
+{%- if resources %}
+
 This problem references the following resources:
 {% for resource in resources %}
 {{ resource }}
