@@ -120,3 +120,8 @@ The problem descriptions are courtesy of the
 [EulerPy](https://github.com/iKevinY/EulerPy) project,
 which formatted the descriptions from Kyle Keen's
 [Local Euler](http://kmkeen.com/local-euler) project into a human-readable form.
+
+
+License
+=======
+EasyEuler is licensed under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
