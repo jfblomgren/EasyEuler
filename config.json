@@ -9,7 +9,32 @@
         {
             "name": "c",
             "extension": "c",
-            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out"
+            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out",
+            "template": "c"
+        },
+        {
+            "name": "ruby",
+            "extension": "rb",
+            "command": "ruby {path}",
+            "template": "ruby"
+        },
+        {
+            "name": "javascript",
+            "extension": "js",
+            "command": "node {path}",
+            "template": "javascript"
+        },
+        {
+            "name": "haskell",
+            "extension": "hs",
+            "command": "runhaskell {path}",
+            "template": "haskell"
+        },
+        {
+            "name": "c++",
+            "extension": "cpp",
+            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out",
+            "template": "c"
         }
     ]
 }
