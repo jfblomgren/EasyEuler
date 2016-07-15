@@ -9,7 +9,6 @@ and intends to provide the same functionality for a larger variety of languages.
 
 TODO
 ====
-- [ ] Add windows support
 - [ ] Add more documentation
 - [ ] Improve `list` command
 - [ ] Add more configuration commands
