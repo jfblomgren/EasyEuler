@@ -7,6 +7,14 @@ This project was inspired by [EulerPy](https://github.com/iKevinY/EulerPy)
 and intends to provide the same functionality for a larger variety of languages.
 
 
+Installation
+============
+EasyEuler can be installed from PyPI using [pip](https://pip.pypa.io/en/latest/):
+```bash
+$ pip install easyeuler
+```
+
+
 Usage
 =====
 Use `create` to create a new problem file:
