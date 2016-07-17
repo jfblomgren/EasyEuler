@@ -3,7 +3,7 @@ import sys
 from setuptools import setup
 
 
-requirements = ['Click', 'Jinja2']
+requirements = ['Click', 'Jinja2', 'tabulate']
 
 if 'win32' in sys.platform.lower():
     # Windows needs colorama for the terminal colors to work.

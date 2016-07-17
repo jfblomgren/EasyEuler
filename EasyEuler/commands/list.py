@@ -1,4 +1,5 @@
 import click
+from tabulate import tabulate
 
 from EasyEuler import data
 
@@ -9,7 +10,10 @@ from EasyEuler import data
 def cli(sort):
     """ Lists all available problems. """
 
-    problem_list = []
-    for problem in sorted(data.problems, key=lambda p: p[sort.lower()]):
-        problem_list.append('Problem {id}: {name}'.format(**problem))
-    click.echo_via_pager('\n'.join(problem_list))
+    problems = sorted(data.problems, key=lambda p: p[sort.lower()])
+    problem_list = [(problem['id'], problem['name'], problem['difficulty'])
+                    for problem in problems]
+
+    problem_table = tabulate(problem_list, ['ID', 'Name', 'Difficulty'],
+                             tablefmt='fancy_grid')
+    click.echo_via_pager(problem_table)
