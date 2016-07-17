@@ -4,7 +4,7 @@ import os
 
 
 tests = unittest.TestLoader().discover('tests')
-cov = coverage.coverage(branch=True, include='EasyEuler/*')
+cov = coverage.coverage(branch=True, include='EasyEuler/*.py')
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 COVERAGE_PATH = os.path.join(BASE_PATH, 'tmp/coverage')
 

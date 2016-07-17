@@ -6,8 +6,8 @@ from jinja2 import Environment, FileSystemLoader
 
 BASE_PATH = os.path.abspath(os.path.dirname(__file__))
 DATA_PATH = os.path.join(BASE_PATH, 'data')
-TEMPLATE_PATH = os.path.join(BASE_PATH, '../templates')
-CONFIG_PATH = os.path.join(BASE_PATH, '../config.json')
+TEMPLATE_PATH = os.path.join(BASE_PATH, 'templates')
+CONFIG_PATH = os.path.join(BASE_PATH, 'config.json')
 
 templates = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
 
