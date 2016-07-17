@@ -6,11 +6,13 @@ from EasyEuler import data
 @click.command()
 @click.option('--long', '-l', is_flag=True,
               help='Include problem descriptions.')
-def cli(long):
+@click.option('--sort', '-s', type=click.Choice(['id', 'difficulty']),
+              default='id', help='Sort the list by problem attribute.')
+def cli(long, sort):
     """ Lists all available problems. """
 
     problem_list = []
-    for problem in data.problems:
+    for problem in sorted(data.problems, key=lambda p: p[sort.lower()]):
         problem_string = 'Problem {id}: {name}'.format(**problem)
 
         if long:
