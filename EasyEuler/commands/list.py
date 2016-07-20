@@ -11,8 +11,8 @@ def cli(sort):
     """ Lists all available problems. """
 
     problems = sorted(data.problems, key=lambda p: p[sort.lower()])
-    problem_list = [(problem['id'], problem['name'], problem['difficulty'])
-                    for problem in problems]
+    problem_list = [(problem['id'], problem['name'],
+                     '%d%%' % problem['difficulty']) for problem in problems]
 
     problem_table = tabulate(problem_list, ['ID', 'Name', 'Difficulty'],
                              tablefmt='fancy_grid')
