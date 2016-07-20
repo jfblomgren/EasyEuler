@@ -16,7 +16,7 @@ def get_readme():
 
 setup(
     name='EasyEuler',
-    version='0.9.1',
+    version='0.9.2',
     description='A command line tool for Project Euler',
     long_description=get_readme(),
     license='MIT',
