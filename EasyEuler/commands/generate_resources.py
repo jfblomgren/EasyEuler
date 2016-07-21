@@ -1,3 +1,4 @@
+import os
 import sys
 import shutil
 
@@ -23,21 +24,18 @@ def cli(problem, path):
     """
 
     if problem is None:
-        generate_all_resources(path)
+        resources = os.listdir('%s/resources' % data.DATA_PATH)
     else:
-        generate_problem_resources(problem, path)
+        if 'resources' not in problem:
+            sys.exit('Problem %s has no resource files' % problem['id'])
+        resources = problem['resources']
 
+    if len(resources) > 1:
+        if os.path.exists(path) and not os.path.isdir(path):
+            sys.exit('%s needs to be a directory to '
+                     'create multiple resource files' % path)
+        os.mkdir(path)
 
-def generate_problem_resources(problem, path):
-    if 'resources' not in problem:
-        sys.exit('Problem %s has no resource files' % problem['id'])
-
-    for filename in problem['resources']:
-        shutil.copy('%s/resources/%s' % (data.DATA_PATH, filename), path)
-        click.echo('Created %s at path %s' % (filename, path))
-
-
-def generate_all_resources(path):
-    for problem in data.problems:
-        if 'resources' in problem:
-            generate_problem_resources(problem, path)
+    for resource in resources:
+        shutil.copy('%s/resources/%s' % (data.DATA_PATH, resource), path)
+        click.echo('Created %s at path %s' % (resource, path))
