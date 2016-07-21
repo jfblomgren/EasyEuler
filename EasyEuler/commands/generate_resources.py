@@ -30,12 +30,26 @@ def cli(problem, path):
             sys.exit('Problem %s has no resource files' % problem['id'])
         resources = problem['resources']
 
-    if len(resources) > 1:
-        if os.path.exists(path) and not os.path.isdir(path):
+    generate_resources(resources, path)
+
+
+def generate_resources(resources, path):
+    if len(resources) > 1 and not os.path.isdir(path):
+        if os.path.exists(path):
             sys.exit('%s needs to be a directory to '
                      'create multiple resource files' % path)
         os.mkdir(path)
 
     for resource in resources:
+        if len(resources) > 1 or os.path.isdir(path):
+            resource_path = '%s/%s' % (path, resource)
+        else:
+            resource_path = path
+
+        if os.path.exists(resource_path):
+            if not click.confirm('%s already exists. Do '
+                                 'you want to overwrite it?' % resource_path):
+                continue
+
         shutil.copy('%s/resources/%s' % (data.DATA_PATH, resource), path)
         click.echo('Created %s at path %s' % (resource, path))

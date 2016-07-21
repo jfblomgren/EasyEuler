@@ -25,18 +25,18 @@ class TestCreateCommand(CommandTestCase):
     def test_file_already_exists(self):
         with self.runner.isolated_filesystem():
             open('euler_001.py', 'a').close()
-            result = self.runner.invoke(cli, ['create', '1', 'python'])
+            result = self.runner.invoke(cli, ['create', '1', 'python'],
+                                        input='n\n')
 
-            self.assertEqual(result.exit_code, 1)
+            self.assertTrue(os.path.getsize('euler_001.py') == 0)
 
     def test_overwrite(self):
         with self.runner.isolated_filesystem():
             open('euler_001.py', 'a').close()
-            result = self.runner.invoke(cli, ['create', '--overwrite',
-                                              '1', 'python'])
+            result = self.runner.invoke(cli, ['create', '1', 'python'],
+                                        input='y\n')
 
             self.assertTrue(os.path.getsize('euler_001.py') > 0)
-            self.assertEqual(result.exit_code, 0)
 
     def test_path(self):
         with self.runner.isolated_filesystem():
