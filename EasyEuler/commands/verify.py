@@ -15,8 +15,6 @@ PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
 
 
 @click.command()
-@click.option('--language', '-l', type=LanguageType(),
-              help='The language of the file(s).')
 @click.option('--recursive', '-r', is_flag=True,
               help='Verify files in specified directory paths.')
 @click.option('--time', '-t', is_flag=True,
@@ -25,51 +23,47 @@ PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
               help='Show errors.')
 @click.argument('paths', type=click.Path(exists=True, readable=True), nargs=-1,
                 metavar='[PATH]...')
-def cli(paths, language, recursive, time, errors):
+def cli(paths, recursive, time, errors):
     """
     Verify the solution to a problem.
 
     Runs the appropriate command for a language (specified in the configuration
     file) with the file path(s) as arguments.
 
-    If the LANGUAGE option isn't specified, it will be identified based on the
-    file extension.
-
-    Similarly, the problem ID will be identified based on the file name.
+    The language will be identified based on the file extension. Similarly, the
+    problem ID will be identified based on the file name.
 
     """
 
     for path in paths:
         if os.path.isdir(path):
             if recursive:
-                validate_directory_files(path, time, language, errors)
+                validate_directory_files(path, time, errors)
             else:
                 click.echo('Skipping %s because it is a directory and '
                            '--recursive was not specified' %
                            click.format_filename(path))
             continue
 
-        validate_file(path, time, language, errors)
+        validate_file(path, time, errors)
 
 
-def validate_directory_files(path, time_execution, language, errors):
+def validate_directory_files(path, time_execution, errors):
     for root, directories, file_names in os.walk(path):
         for file_name in file_names:
-            validate_file(os.path.join(root, file_name), time_execution,
-                          language, errors)
+            validate_file(os.path.join(root, file_name), time_execution, errors)
 
 
-def validate_file(path, time_execution, language, errors):
+def validate_file(path, time_execution, errors):
     problem_id = get_problem_id(path)
     if problem_id is None or get_problem(problem_id) is None:
         click.echo('Skipping %s because it does not contain '
                    'a valid problem ID' % click.format_filename(path))
         return
-    problem = get_problem(problem_id)
 
-    if language is None:
-        file_extension = os.path.splitext(path)[1].replace('.', '')
-        language = get_language(file_extension, 'extension')
+    problem = get_problem(problem_id)
+    file_extension = os.path.splitext(path)[1].replace('.', '')
+    language = get_language(file_extension, 'extension')
 
     verify_solution(path, time_execution, problem, language, errors)
 
@@ -130,7 +124,7 @@ try:
                 'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
 except ImportError:
     # The resource module only exists on UNIX.
-    # This is a different platform, so we can't 
+    # This is a different platform, so we can't
     # provide user and system times.
     def get_time():
         return {'wall': time.time()}
