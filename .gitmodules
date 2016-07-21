@@ -1,0 +1,3 @@
+[submodule "EasyEuler/data"]
+	path = EasyEuler/data
+	url = https://github.com/Encrylize/project-euler-data.git
