@@ -10,12 +10,12 @@ if 'win32' in sys.platform.lower():
 
 
 def get_readme():
-    with open('README.rst') as readme:
+    with open('README.rst', encoding='UTF-8') as readme:
         return readme.read()
 
 setup(
     name='EasyEuler',
-    version='1.0.0',
+    version='1.0.1',
     description='A command line tool for Project Euler',
     long_description=get_readme(),
     license='MIT',
