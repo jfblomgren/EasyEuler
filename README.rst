@@ -153,8 +153,16 @@ Requirements
 
 EasyEuler requires `Python
 3.5+ <https://www.python.org/downloads/release/python-350/>`__, along
-with the `Click <http://click.pocoo.org>`__ and
-`Jinja2 <http://jinja.pocoo.org>`__ modules.
+with the `Click <http://click.pocoo.org>`__,
+`Jinja2 <http://jinja.pocoo.org>`__ and
+`tabulate <https://pypi.python.org/pypi/tabulate>`__ modules.
+It has been tested on Windows 10 and Linux.
+
+Contributing
+============
+Please see `CONTRIBUTING.md
+<https://github.com/Encrylize/EasyEuler/blob/master/LICENSE>`__
+for information on how to contribute to this project.
 
 Acknowledgements
 ================
