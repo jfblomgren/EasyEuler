@@ -109,7 +109,7 @@ class TestVerifyCommand(CommandTestCase):
             result = self.runner.invoke(cli, ['verify', 'euler_001.py'])
             output = str(result.output_bytes, encoding='UTF-8')
             result_with_errors = self.runner.invoke(cli, ['verify', '--errors',
-                                        'euler_001.py'])
+                                                          'euler_001.py'])
             output_with_errors = str(result_with_errors.output_bytes,
                                      encoding='UTF-8')
 

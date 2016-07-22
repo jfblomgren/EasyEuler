@@ -19,7 +19,8 @@ def cli(problem, path):
     These resources are either images - serving as helpful illustrations -
     or text files containing specific data - referenced in the problem.
 
-    If the PROBLEM argument isn't specified, all resources will be generated.
+    If the PROBLEM argument isn't specified, all resources will be
+    generated.
 
     """
 

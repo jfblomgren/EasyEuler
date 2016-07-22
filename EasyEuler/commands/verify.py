@@ -26,11 +26,11 @@ def cli(paths, recursive, time, errors):
     """
     Verify the solution to a problem.
 
-    Runs the appropriate command for a language (specified in the configuration
-    file) with the file path(s) as arguments.
+    Runs the appropriate command for a language (specified in the
+    configuration file) with the file path(s) as arguments.
 
-    The language will be identified based on the file extension. Similarly, the
-    problem ID will be identified based on the file name.
+    The language will be identified based on the file extension.
+    Similarly, the problem ID will be identified based on the file name.
 
     """
 
@@ -117,6 +117,7 @@ def execute_process(command, time_execution):
 
 try:
     import resource
+
     def get_time():
         rs = resource.getrusage(resource.RUSAGE_CHILDREN)
         return {'user': rs.ru_utime, 'system': rs.ru_stime,

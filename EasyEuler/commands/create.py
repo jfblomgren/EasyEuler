@@ -20,8 +20,8 @@ def cli(problem, language, path):
     Simply specify a valid problem ID and the file will be created at
     euler_<id>.<extension> (if the PATH option isn't specified).
 
-    Optionally, the LANGUAGE argument can be specified, which will then be used
-    to identify an appropriate template for the file.
+    Optionally, the LANGUAGE argument can be specified, which will then
+    be used to identify an appropriate template for the file.
 
     """
 
