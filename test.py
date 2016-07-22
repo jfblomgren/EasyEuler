@@ -1,7 +1,7 @@
-import unittest
-import coverage
 import os
+import unittest
 
+import coverage
 
 tests = unittest.TestLoader().discover('tests')
 cov = coverage.coverage(branch=True, include='EasyEuler/*.py')

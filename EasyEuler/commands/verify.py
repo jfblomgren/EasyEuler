@@ -1,15 +1,14 @@
+import math
 import os
 import re
-import sys
-import math
 import subprocess
+import sys
 import time
 
 import click
 
 from EasyEuler.types import LanguageType
-from EasyEuler.utils import get_problem, get_language
-
+from EasyEuler.utils import get_language, get_problem
 
 PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
 

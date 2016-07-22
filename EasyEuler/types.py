@@ -1,7 +1,6 @@
 import click
 
-
-from .utils import get_problem, get_language
+from EasyEuler.utils import get_language, get_problem
 
 
 class ProblemType(click.ParamType):

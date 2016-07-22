@@ -1,11 +1,11 @@
-import unittest
 import os
+import unittest
+
+from click.testing import CliRunner
 
 from EasyEuler import data
 from EasyEuler.cli import cli
 from EasyEuler.utils import get_problem
-
-from click.testing import CliRunner
 
 
 class CommandTestCase(unittest.TestCase):

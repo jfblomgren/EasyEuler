@@ -1,10 +1,10 @@
-import sys
 import os
+import sys
 
 import click
 
 from EasyEuler import data
-from EasyEuler.types import ProblemType, LanguageType
+from EasyEuler.types import LanguageType, ProblemType
 
 
 @click.command()

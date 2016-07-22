@@ -2,7 +2,6 @@ import sys
 
 from setuptools import setup
 
-
 requirements = ['Click', 'Jinja2', 'tabulate']
 
 if 'win32' in sys.platform.lower():
