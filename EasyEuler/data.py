@@ -48,14 +48,18 @@ class ConfigurationDictionary(collections.MutableMapping):
 
 
 home = os.environ.get('HOME')
-xdg_config_home = os.environ.get('XDG_CONFIG_HOME',
-                                 os.path.join(home, '.config'))
-xdg_config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg')
-config_dirs =  [xdg_config_home] + xdg_config_dirs.split(':')
-config_paths = [os.path.join(config_dir, 'EasyEuler/config.json')
-                for config_dir in config_dirs if os.path.isabs(config_dir)]
-template_paths = [os.path.join(config_dir, 'EasyEuler/templates')
-                  for config_dir in config_dirs if os.path.isabs(config_dir)]
+if home is None:
+    config_paths = []
+    template_paths = []
+else:
+    xdg_config_home = os.environ.get('XDG_CONFIG_HOME',
+                                     os.path.join(home, '.config'))
+    xdg_config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg')
+    config_dirs =  [xdg_config_home] + xdg_config_dirs.split(':')
+    config_paths = [os.path.join(config_dir, 'EasyEuler/config.json')
+                    for config_dir in config_dirs if os.path.isabs(config_dir)]
+    template_paths = [os.path.join(config_dir, 'EasyEuler/templates')
+                      for config_dir in config_dirs if os.path.isabs(config_dir)]
 config_paths.append(CONFIG_PATH)
 template_paths.append(TEMPLATE_PATH)
 
