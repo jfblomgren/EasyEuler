@@ -8,8 +8,8 @@ def get_problem(problem_id):
     return data.problems[problem_id - 1]
 
 
-def get_language(value, key='name'):
-    for language in data.config['languages']:
-        if language[key] == value:
-            return language
+def get_language(value, key):
+    for name, options in data.config['languages'].items():
+        if options[key] == value:
+            return {'name': name, **options}
     return None

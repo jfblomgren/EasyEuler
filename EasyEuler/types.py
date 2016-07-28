@@ -1,5 +1,6 @@
 import click
 
+from EasyEuler import data
 from EasyEuler.utils import get_language, get_problem
 
 
@@ -28,9 +29,9 @@ class LanguageType(click.ParamType):
         if value is None:
             return None
 
-        language = get_language(value)
+        language = data.config['languages'].get(value)
 
         if language is None:
             self.fail('Could not find language %s' % value, param, ctx)
 
-        return language
+        return {'name': value, **language}
