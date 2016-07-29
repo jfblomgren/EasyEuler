@@ -135,18 +135,30 @@ Configuration
 =============
 
 EasyEuler is designed to be configurable and adaptable to any language
-you may want to use it with. Adding a new language is as easy as adding
-a few lines to the ``config.json`` file (located in ``EasyEuler/``).
+you may want to use it with. It follows the `XDG Base Directory Specification
+<https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html>`__
+for locating configuration files. The default location is
+``$HOME/.config/EasyEuler``.
+To see examples of configuration, look at ``config.json`` and the ``templates``
+directory inside the package.
+
+Languages
+~~~~~~~~~
+Adding a new language is as easy as adding a few lines to the ``config.json``
+file.
 
 A language has the following attributes:
 
--  ``name`` - the name of the language.
+-  ``name`` - the name of the language. This is also the language key.
 -  ``extension`` - the file extension of the language.
 -  ``command`` - the command to execute with the ``verify`` command.
--  ``template`` - the name of the template (located in
-   ``EasyEuler/templates/``)
+-  ``template`` - the name of the template.
 
+Templates
+~~~~~~~~~
 Templates use the `Jinja2 <http://jinja.pocoo.org>`__ templating engine.
+New templates should go in the ``templates`` directory inside the configuration
+directory.
 
 Requirements
 ============
