@@ -89,7 +89,7 @@ def verify_solution(path, time_execution, problem, language, errors):
         output = str(process.stderr, encoding='UTF-8')
         click.secho('\n%s' % output if errors else '[error]', fg='red')
     else:
-        output = str(process.stdout, encoding='UTF-8').replace('\n', '')
+        output = str(process.stdout, encoding='UTF-8').rstrip()
         click.secho(output or '[no output]',
                     fg='green' if output == problem['answer'] else 'red')
 
