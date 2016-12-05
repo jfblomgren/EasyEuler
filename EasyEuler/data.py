@@ -4,12 +4,10 @@ import os
 
 from jinja2 import Environment, FileSystemLoader
 
-BASE_PATH = os.path.abspath(os.path.dirname(__file__))
-DATA_PATH = os.path.join(BASE_PATH, 'data')
-TEMPLATE_PATH = os.path.join(BASE_PATH, 'templates')
-CONFIG_PATH = os.path.join(BASE_PATH, 'config.json')
+from EasyEuler import paths
 
-with open('%s/problems.json' % DATA_PATH) as f:
+
+with open(paths.PROBLEMS) as f:
     problems = json.load(f)
 
 
@@ -55,13 +53,13 @@ else:
     xdg_config_home = os.environ.get('XDG_CONFIG_HOME',
                                      os.path.join(home, '.config'))
     xdg_config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg')
-    config_dirs =  [xdg_config_home] + xdg_config_dirs.split(':')
+    config_dirs = [xdg_config_home] + xdg_config_dirs.split(':')
     config_paths = [os.path.join(config_dir, 'EasyEuler/config.json')
                     for config_dir in config_dirs if os.path.isabs(config_dir)]
     template_paths = [os.path.join(config_dir, 'EasyEuler/templates')
                       for config_dir in config_dirs if os.path.isabs(config_dir)]
-config_paths.append(CONFIG_PATH)
-template_paths.append(TEMPLATE_PATH)
+config_paths.append(paths.CONFIG)
+template_paths.append(paths.TEMPLATES)
 
 config = ConfigurationDictionary(reversed(config_paths))
 templates = Environment(loader=FileSystemLoader(reversed(template_paths)))

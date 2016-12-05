@@ -3,7 +3,7 @@ import unittest
 
 from click.testing import CliRunner
 
-from EasyEuler import data
+from EasyEuler import data, paths
 from EasyEuler.cli import cli
 from EasyEuler.utils import get_problem
 
@@ -60,7 +60,7 @@ class TestGenerateResourcesCommand(CommandTestCase):
         with self.runner.isolated_filesystem():
             self.runner.invoke(cli, ['generate-resources'])
 
-            for filename in os.listdir('%s/resources' % data.DATA_PATH):
+            for filename in os.listdir(paths.RESOURCES):
                 self.assertTrue(os.path.exists(filename))
 
     def test_problem_with_no_resources(self):

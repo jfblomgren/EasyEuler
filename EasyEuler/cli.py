@@ -2,15 +2,14 @@ import os
 
 import click
 
-COMMAND_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                              'commands'))
+from EasyEuler import paths
 
 
 class CommandLineInterface(click.MultiCommand):
     def list_commands(self, ctx):
         commands = []
 
-        for filename in os.listdir(COMMAND_FOLDER):
+        for filename in os.listdir(paths.COMMANDS):
             if filename.endswith('.py') and filename != '__init__.py':
                 commands.append(filename[:-3].replace('_', '-'))
 

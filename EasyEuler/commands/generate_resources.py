@@ -4,7 +4,7 @@ import sys
 
 import click
 
-from EasyEuler import data
+from EasyEuler import data, paths
 from EasyEuler.types import ProblemType
 
 
@@ -25,7 +25,7 @@ def cli(problem, path):
     """
 
     if problem is None:
-        resources = os.listdir('%s/resources' % data.DATA_PATH)
+        resources = os.listdir('%s/resources' % paths.DATA)
     else:
         if 'resources' not in problem:
             sys.exit('Problem %s has no resource files' % problem['id'])
@@ -52,5 +52,5 @@ def generate_resources(resources, path):
                                  'you want to overwrite it?' % resource_path):
                 continue
 
-        shutil.copy('%s/resources/%s' % (data.DATA_PATH, resource), path)
+        shutil.copy('%s/resources/%s' % (paths.DATA, resource), path)
         click.echo('Created %s at path %s' % (resource, path))
