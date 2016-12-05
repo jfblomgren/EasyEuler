@@ -11,7 +11,7 @@ with open(paths.PROBLEMS) as f:
     problems = json.load(f)
 
 
-class ConfigurationDictionary(collections.MutableMapping):
+class ConfigurationDictionary(collections.Mapping):
     def __init__(self, config_paths):
         self.config = {}
 
@@ -31,12 +31,6 @@ class ConfigurationDictionary(collections.MutableMapping):
 
     def __getitem__(self, key):
         return self.config[key]
-
-    def __setitem__(self, key, value):
-        self.config[key] = value
-
-    def __delitem__(self, key):
-        del self.config[key]
 
     def __iter__(self):
         return iter(self.config)
