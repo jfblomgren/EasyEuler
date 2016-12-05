@@ -5,7 +5,6 @@ from click.testing import CliRunner
 
 from EasyEuler import data, paths
 from EasyEuler.cli import cli
-from EasyEuler.utils import get_problem
 
 
 class CommandTestCase(unittest.TestCase):
@@ -71,8 +70,8 @@ class TestGenerateResourcesCommand(CommandTestCase):
 class TestVerifyCommand(CommandTestCase):
     def test_problem_verification(self):
         with self.runner.isolated_filesystem():
-            problem1 = get_problem(1)
-            problem2 = get_problem(2)
+            problem1 = data.problems[1]
+            problem2 = data.problems[2]
 
             with open('euler_001.py', 'w') as f:
                 f.write('print(%s)' % problem1['answer'])
@@ -90,7 +89,7 @@ class TestVerifyCommand(CommandTestCase):
     def test_recursive_verification(self):
         with self.runner.isolated_filesystem():
             os.mkdir('test')
-            problem = get_problem(1)
+            problem = data.problems[1]
 
             with open('test/euler_001.py', 'w') as f:
                 f.write('print(%s)' % problem['answer'])

@@ -7,8 +7,22 @@ from jinja2 import Environment, FileSystemLoader
 from EasyEuler import paths
 
 
-with open(paths.PROBLEMS) as f:
-    problems = json.load(f)
+class ProblemStore(collections.Sequence):
+    def __init__(self):
+        with open(paths.PROBLEMS) as f:
+            self.problems = json.load(f)
+
+    def get(self, id):
+        if id < 1 or len(self.problems) < id:
+            # We don't want a negative index, because it'll wrap back around.
+            return None
+        return self.problems[id - 1]
+
+    def __getitem__(self, id):
+        return self.problems[id - 1]
+
+    def __len__(self):
+        return len(self.problems)
 
 
 class ConfigurationDictionary(collections.Mapping):
@@ -28,6 +42,12 @@ class ConfigurationDictionary(collections.Mapping):
             else:
                 config[key] = value
         return config
+
+    def get_language(self, key, value):
+        for name, options in self.config['languages'].items():
+            if options[key] == value:
+                return {'name': name, **options}
+        return None
 
     def __getitem__(self, key):
         return self.config[key]
@@ -56,4 +76,5 @@ config_paths.append(paths.CONFIG)
 template_paths.append(paths.TEMPLATES)
 
 config = ConfigurationDictionary(reversed(config_paths))
+problems = ProblemStore()
 templates = Environment(loader=FileSystemLoader(reversed(template_paths)))

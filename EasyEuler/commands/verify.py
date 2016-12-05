@@ -7,8 +7,9 @@ import time
 
 import click
 
+from EasyEuler import data
 from EasyEuler.types import LanguageType
-from EasyEuler.utils import get_language, get_problem
+
 
 PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
 
@@ -59,15 +60,15 @@ def validate_directory_files(path, time_execution, language, errors):
 
 def validate_file(path, time_execution, language, errors):
     problem_id = get_problem_id(path)
-    if problem_id is None or get_problem(problem_id) is None:
+    if problem_id is None or data.problems.get(problem_id) is None:
         click.echo('Skipping %s because it does not contain '
                    'a valid problem ID' % click.format_filename(path))
         return
-    problem = get_problem(problem_id)
+    problem = data.problems.get(problem_id)
 
     if language is None:
         file_extension = os.path.splitext(path)[1].replace('.', '')
-        language = get_language(file_extension, 'extension')
+        language = data.config.get_language('extension', file_extension)
 
     verify_solution(path, time_execution, problem, language, errors)
 

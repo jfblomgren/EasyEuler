@@ -1,7 +1,6 @@
 import click
 
 from EasyEuler import data
-from EasyEuler.utils import get_language, get_problem
 
 
 class ProblemType(click.ParamType):
@@ -12,7 +11,7 @@ class ProblemType(click.ParamType):
             return None
 
         try:
-            problem = get_problem(int(value))
+            problem = data.problems.get(int(value))
         except ValueError:
             self.fail('%s is not a valid integer' % value, param, ctx)
 
