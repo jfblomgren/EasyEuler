@@ -58,23 +58,6 @@ class ConfigurationDictionary(collections.Mapping):
     def __len__(self):
         return len(self.config)
 
-
-home = os.environ.get('HOME')
-if home is None:
-    config_paths = []
-    template_paths = []
-else:
-    xdg_config_home = os.environ.get('XDG_CONFIG_HOME',
-                                     os.path.join(home, '.config'))
-    xdg_config_dirs = os.environ.get('XDG_CONFIG_DIRS', '/etc/xdg')
-    config_dirs = [xdg_config_home] + xdg_config_dirs.split(':')
-    config_paths = [os.path.join(config_dir, 'EasyEuler/config.json')
-                    for config_dir in config_dirs if os.path.isabs(config_dir)]
-    template_paths = [os.path.join(config_dir, 'EasyEuler/templates')
-                      for config_dir in config_dirs if os.path.isabs(config_dir)]
-config_paths.append(paths.CONFIG)
-template_paths.append(paths.TEMPLATES)
-
-config = ConfigurationDictionary(reversed(config_paths))
+config = ConfigurationDictionary(paths.CONFIGS)
 problems = ProblemStore()
-templates = Environment(loader=FileSystemLoader(reversed(template_paths)))
+templates = Environment(loader=FileSystemLoader(paths.TEMPLATES))
