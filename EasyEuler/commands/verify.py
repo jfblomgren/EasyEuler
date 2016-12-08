@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import time
+import resource
 
 import click
 
@@ -41,67 +42,86 @@ def cli(paths, language, recursive, time, errors):
     for path in paths:
         if os.path.isdir(path):
             if recursive:
-                validate_directory_files(path, time, language, errors)
+                validate_directory(path, time, language, errors)
             else:
                 click.echo('Skipping %s because it is a directory and '
                            '--recursive was not specified' %
                            click.format_filename(path))
-            continue
+        else:
+            validate_file(path, time, language, errors)
 
-        validate_file(path, time, language, errors)
 
-
-def validate_directory_files(path, time_execution, language, errors):
-    for root, directories, file_names in os.walk(path):
-        for file_name in file_names:
-            validate_file(os.path.join(root, file_name), time_execution,
+def validate_directory(path, time_execution, language, errors):
+    for root, _, filenames in os.walk(path):
+        for filename in filenames:
+            validate_file(os.path.join(root, filename), time_execution,
                           language, errors)
 
 
 def validate_file(path, time_execution, language, errors):
-    problem_id = get_problem_id(path)
-    if problem_id is None or data.problems.get(problem_id) is None:
+    problem = get_problem_from_path(path)
+    if problem is None:
         click.echo('Skipping %s because it does not contain '
                    'a valid problem ID' % click.format_filename(path))
         return
-    problem = data.problems.get(problem_id)
 
     if language is None:
-        file_extension = os.path.splitext(path)[1].replace('.', '')
-        language = data.config.get_language('extension', file_extension)
+        language = get_language_from_path(path)
 
-    verify_solution(path, time_execution, problem, language, errors)
+    click.echo('Checking output of %s: ' % click.format_filename(path),
+               nl=False)
+    result = verify_solution(path, time_execution, problem, language)
+    print_result(result, errors, time_execution)
 
 
-def get_problem_id(path):
+def print_result(result, errors, show_time):
+    if result['error']:
+        click.secho('\n%s' % result['output'] if errors else '[error]',
+                    fg='red')
+    else:
+        click.secho(result['output'] or '[no output]',
+                    fg='green' if result['correct'] else 'red')
+
+    if show_time:
+        click.secho('CPU times - user: {user}, '         \
+                    'system: {system}, total: {total}\n' \
+                    'Wall time: {wall}\n'.format(**result['execution_time']),
+                    fg='cyan')
+
+
+def get_problem_from_path(path):
+    problem_id = get_problem_id_from_path(path)
+    if problem_id is None:
+        return None
+    return data.problems.get(problem_id)
+
+
+def get_language_from_path(path):
+    file_extension = os.path.splitext(path)[1].replace('.', '')
+    return data.config.get_language('extension', file_extension)
+
+
+def get_problem_id_from_path(path):
     problem_id = PROBLEM_ID_REGEX.findall(path)
     return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
-def verify_solution(path, time_execution, problem, language, errors):
+def verify_solution(path, time_execution, problem, language):
     command = './{path}' if language is None else language['command']
-
-    click.echo('Checking output of %s: ' % click.format_filename(path), nl=False)
-
     process, execution_time = execute_process(command.format(path=path),
                                               time_execution)
 
-    if process.returncode != 0:
-        output = str(process.stderr, encoding='UTF-8')
-        click.secho('\n%s' % output if errors else '[error]', fg='red')
-    else:
-        output = str(process.stdout, encoding='UTF-8').rstrip()
-        click.secho(output or '[no output]',
-                    fg='green' if output == problem['answer'] else 'red')
+    output, error = get_process_output(process)
+    correct = output == problem['answer']
 
-    if time_execution:
-        if 'user' in execution_time:
-            execution_time_msg = 'CPU times - user: {user}, ' \
-                                 'system: {system}, total: {total}\n' \
-                                 'Wall time: {wall}\n'
-        else:
-            execution_time_msg = 'Time: {wall}\n'
-        click.secho(execution_time_msg.format(**execution_time), fg='cyan')
+    return {'correct': correct, 'output': output, 'error': error,
+            'execution_time': execution_time}
+
+
+def get_process_output(process):
+    if process.returncode != 0:
+        return str(process.stderr, encoding='UTF-8'), True
+    return str(process.stdout, encoding='UTF-8').rstrip(), False
 
 
 def execute_process(command, time_execution):
@@ -121,19 +141,10 @@ def execute_process(command, time_execution):
     return process, execution_time
 
 
-try:
-    import resource
-
-    def get_time():
-        rs = resource.getrusage(resource.RUSAGE_CHILDREN)
-        return {'user': rs.ru_utime, 'system': rs.ru_stime,
-                'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
-except ImportError:
-    # The resource module only exists on UNIX.
-    # This is a different platform, so we can't
-    # provide user and system times.
-    def get_time():
-        return {'wall': time.time()}
+def get_time():
+    rs = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return {'user': rs.ru_utime, 'system': rs.ru_stime,
+            'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
 
 
 def format_long_time(timespan):
