@@ -7,57 +7,64 @@ from jinja2 import Environment, FileSystemLoader
 from EasyEuler import paths
 
 
-class ProblemStore(collections.Sequence):
-    def __init__(self):
-        with open(paths.PROBLEMS) as f:
-            self.problems = json.load(f)
+class ProblemList(collections.Sequence):
+    def __init__(self, problems):
+        self._problems = problems
 
     def get(self, id):
-        if id < 1 or len(self.problems) < id:
+        if id < 1 or len(self) < id:
             # We don't want a negative index, because it'll wrap back around.
             return None
-        return self.problems[id - 1]
+        return self[id]
 
     def __getitem__(self, id):
-        return self.problems[id - 1]
+        return self._problems[id - 1]
 
     def __len__(self):
-        return len(self.problems)
+        return len(self._problems)
 
 
 class ConfigurationDictionary(collections.Mapping):
-    def __init__(self, config_paths):
-        self.config = {}
+    def __init__(self, configs):
+        self._config = {}
 
-        for config_path in config_paths:
-            if os.path.exists(config_path):
-                with open(config_path) as f:
-                    self.config = self.update(self.config, json.load(f))
+        for config in configs:
+            self._config = self._update(self._config, config)
 
-    def update(self, config, updates):
+    def _update(self, config, updates):
         for key, value in updates.items():
             if isinstance(value, collections.Mapping):
-                updated = self.update(config.get(key, {}), value)
+                updated = self._update(config.get(key, {}), value)
                 config[key] = updated
             else:
                 config[key] = value
         return config
 
     def get_language(self, key, value):
-        for name, options in self.config['languages'].items():
+        for name, options in self._config['languages'].items():
             if options[key] == value:
                 return {'name': name, **options}
         return None
 
     def __getitem__(self, key):
-        return self.config[key]
+        return self._config[key]
 
     def __iter__(self):
-        return iter(self.config)
+        raise NotImplementedError
 
     def __len__(self):
-        return len(self.config)
+        raise NotImplementedError
 
-config = ConfigurationDictionary(paths.CONFIGS)
-problems = ProblemStore()
+
+config_list = []
+for CONFIG_PATH in paths.CONFIGS:
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH) as conf:
+            config_list.append(json.load(conf))
+
+with open(paths.PROBLEMS) as f:
+    problem_list = json.load(f)
+
+config = ConfigurationDictionary(config_list)
+problems = ProblemList(problem_list)
 templates = Environment(loader=FileSystemLoader(paths.TEMPLATES))
