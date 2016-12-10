@@ -75,17 +75,22 @@ def validate_file(path, time_execution, language, errors):
 
 
 def print_result(result, errors, show_time):
-    if result['error']:
-        click.secho('\n%s' % result['output'] if errors else '[error]',
-                    fg='red')
-    else:
-        click.secho(result['output'] or '[no output]',
-                    fg='green' if result['correct'] else 'red')
+    if result['error'] != 'none':
+        if errors:
+            error_message = result[result['error']]['output']
+        else:
+            error_message = '[error during %s]' % result['error']
+        click.secho('\n%s' % error_message, fg='red')
+        return
+
+    click.secho(result['execute']['output'] or '[no output]',
+                fg='green' if result['correct'] else 'red')
 
     if show_time:
         click.secho('CPU times - user: {user}, '         \
                     'system: {system}, total: {total}\n' \
-                    'Wall time: {wall}\n'.format(**result['execution_time']),
+                    'Wall time: {wall}\n'                \
+                    .format(**result['execute']['execution_time']),
                     fg='cyan')
 
 
@@ -107,21 +112,45 @@ def get_problem_id_from_path(path):
 
 
 def verify_solution(path, time_execution, problem, language):
-    command = './{path}' if language is None else language['command']
-    process, execution_time = execute_process(command.format(path=path),
-                                              time_execution)
+    commands = get_commands(language, path)
+    result = {'error': 'none'}
 
-    output, error = get_process_output(process)
-    correct = output == problem['answer']
+    for stage in ('build', 'execute', 'cleanup'):
+        if commands[stage] is None:
+            continue
 
-    return {'correct': correct, 'output': output, 'error': error,
-            'execution_time': execution_time}
+        if stage == 'execute':
+            result[stage] = execute_process(commands[stage], time_execution)
+            result['correct'] = result[stage]['output'] == problem['answer']
+        else:
+            result[stage] = execute_process(commands[stage], False)
+
+        if result[stage]['error']:
+            result['error'] = stage
+            break
+
+    return result
 
 
 def get_process_output(process):
     if process.returncode != 0:
         return str(process.stderr, encoding='UTF-8'), True
     return str(process.stdout, encoding='UTF-8').rstrip(), False
+
+
+def get_commands(language, path):
+    if language is None:
+        language = {}
+
+    commands = {'build': None, 'cleanup': None}
+    commands['execute'] = language.get('execute', './{path}').format(path=path)
+
+    if 'build' in language:
+        commands['build'] = language['build'].format(path=path)
+    if 'cleanup' in language:
+        commands['cleanup'] = language['cleanup'].format(path=path)
+
+    return commands
 
 
 def execute_process(command, time_execution):
@@ -138,7 +167,8 @@ def execute_process(command, time_execution):
                                  stderr=subprocess.PIPE)
         execution_time = None
 
-    return process, execution_time
+    output, error = get_process_output(process)
+    return {'output': output, 'error': error, 'execution_time': execution_time}
 
 
 def get_time():

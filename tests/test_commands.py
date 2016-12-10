@@ -68,7 +68,7 @@ class TestGenerateResourcesCommand(CommandTestCase):
 
 
 class TestVerifyCommand(CommandTestCase):
-    def test_problem_verification(self):
+    def test_problem_verification_with_execution_only(self):
         with self.runner.isolated_filesystem():
             problem1 = data.problems[1]
             problem2 = data.problems[2]
@@ -86,6 +86,22 @@ class TestVerifyCommand(CommandTestCase):
             self.assertIn(problem1['answer'], output)
             self.assertIn(problem2['answer'], output)
 
+    def test_problem_verification_with_build_and_cleanup(self):
+        problem = data.problems[1]
+        with self.runner.isolated_filesystem():
+            with open('euler_001.c', 'w') as f:
+                f.writelines(['#include <stdio.h>\n',
+                              'int main(void) {\n',
+                              'printf("%s");\n' % problem['answer'],
+                              'return 0;\n',
+                              '}\n'])
+
+            result = self.runner.invoke(cli, ['verify', '-e', 'euler_001.c'])
+            output = str(result.output_bytes, encoding='UTF-8')
+
+            self.assertIn(problem['answer'], output)
+            self.assertFalse(os.path.exists('euler_001.c.out'))
+
     def test_recursive_verification(self):
         with self.runner.isolated_filesystem():
             os.mkdir('test')
@@ -100,7 +116,7 @@ class TestVerifyCommand(CommandTestCase):
 
             self.assertIn(problem['answer'], output)
 
-    def test_show_errors(self):
+    def test_show_execute_errors(self):
         with self.runner.isolated_filesystem():
             with open('euler_001.py', 'w') as f:
                 f.write('print(')
@@ -112,5 +128,20 @@ class TestVerifyCommand(CommandTestCase):
             output_with_errors = str(result_with_errors.output_bytes,
                                      encoding='UTF-8')
 
-            self.assertIn('[error]', output)
+            self.assertIn('[error during execute]', output)
             self.assertIn('SyntaxError', output_with_errors)
+
+    def test_show_build_errors(self):
+        with self.runner.isolated_filesystem():
+            with open('euler_001.c', 'w') as f:
+                f.write('#include <invalid_header.h>')
+
+            result = self.runner.invoke(cli, ['verify', 'euler_001.c'])
+            output = str(result.output_bytes, encoding='UTF-8')
+            result_with_errors = self.runner.invoke(cli, ['verify', '--errors',
+                                                          'euler_001.c'])
+            output_with_errors = str(result_with_errors.output_bytes,
+                                     encoding='UTF-8')
+
+            self.assertIn('[error during build]', output)
+            self.assertIn('fatal error: invalid_header.h', output_with_errors)

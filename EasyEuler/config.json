@@ -5,33 +5,37 @@
         "python":
         {
             "extension": "py",
-            "command": "python {path}",
-            "template": "python"
+            "template": "python",
+            "execute": "python {path}"
         },
         "c": {
             "extension": "c",
-            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out",
-            "template": "c"
+            "template": "c",
+            "build": "gcc -o {path}.out {path}",
+            "execute": "./{path}.out",
+            "cleanup": "rm {path}.out"
         },
         "ruby": {
             "extension": "rb",
-            "command": "ruby {path}",
-            "template": "ruby"
+            "template": "ruby",
+            "execute": "ruby {path}"
         },
         "javascript": {
             "extension": "js",
-            "command": "node {path}",
-            "template": "javascript"
+            "template": "javascript",
+            "execute": "node {path}"
         },
         "haskell": {
             "extension": "hs",
-            "command": "runhaskell {path}",
-            "template": "haskell"
+            "template": "haskell",
+            "execute": "runhaskell {path}"
         },
         "c++": {
             "extension": "cpp",
-            "command": "gcc -o {path}.out {path} && ./{path}.out && rm {path}.out",
-            "template": "c"
+            "template": "c",
+            "build": "g++ -o {path}.out {path}",
+            "execute": "./{path}.out",
+            "cleanup": "rm {path}.out"
         }
     }
 }
