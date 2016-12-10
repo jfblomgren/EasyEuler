@@ -12,7 +12,7 @@ from EasyEuler.types import LanguageType, ProblemType
               help='Writes the file to PATH.')
 @click.argument('problem', type=ProblemType())
 @click.argument('language', type=LanguageType(),
-                required=False, default=data.config['default_language'])
+                required=False, default=data.config['default language'])
 def cli(problem, language, path):
     """
     Create the file for a problem.
@@ -26,7 +26,7 @@ def cli(problem, language, path):
     """
 
     if path is None:
-        path = data.config['filename_format'].format(id=problem['id'],
+        path = data.config['filename format'].format(id=problem['id'],
                                                      extension=language['extension'])
 
     if os.path.exists(path) and not click.confirm('%s already exists. Do you '

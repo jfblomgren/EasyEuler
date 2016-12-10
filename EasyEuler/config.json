@@ -1,6 +1,6 @@
 {
-    "filename_format": "euler_{id:0>3}.{extension}",
-    "default_language": "python",
+    "filename format": "euler_{id:0>3}.{extension}",
+    "default language": "python",
     "languages": {
         "python":
         {
