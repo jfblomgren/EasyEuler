@@ -11,14 +11,15 @@ class ProblemList(collections.Sequence):
     def __init__(self, problems):
         self._problems = problems
 
-    def get(self, id):
-        if id < 1 or len(self) < id:
-            # We don't want a negative index, because it'll wrap back around.
+    def get(self, problem_id):
+        if problem_id < 1 or len(self) < problem_id:
+            # We don't want a negative index,
+            # because it'll wrap back around.
             return None
-        return self[id]
+        return self[problem_id]
 
-    def __getitem__(self, id):
-        return self._problems[id - 1]
+    def __getitem__(self, problem_id):
+        return self._problems[problem_id - 1]
 
     def __len__(self):
         return len(self._problems)
