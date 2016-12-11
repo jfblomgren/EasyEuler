@@ -17,17 +17,17 @@ STAGES = ('build', 'execute', 'cleanup')
 
 
 @click.command()
-@click.option('--language', '-l', type=LanguageType(),
-              help='The language of the file(s).')
-@click.option('--recursive', '-r', is_flag=True,
-              help='Verify files in specified directory paths.')
 @click.option('--time', '-t', is_flag=True,
               help='Time the execution of files.')
 @click.option('--errors', '-e', is_flag=True,
               help='Show errors.')
+@click.option('--recursive', '-r', is_flag=True,
+              help='Verify files in specified directory paths.')
+@click.option('--language', '-l', type=LanguageType(),
+              help='The language of the file(s).')
 @click.argument('paths', type=click.Path(exists=True, readable=True), nargs=-1,
                 metavar='[PATH]...')
-def cli(paths, language, recursive, time, errors):
+def cli(paths, language, time, errors, recursive):
     """
     Verify the solution to a problem.
 
@@ -43,23 +43,23 @@ def cli(paths, language, recursive, time, errors):
     for path in paths:
         if os.path.isdir(path):
             if recursive:
-                validate_directory(path, time, language, errors)
+                validate_directory(path, language, time, errors)
             else:
                 click.echo('Skipping %s because it is a directory '
                            'and --recursive was not specified' %
                            click.format_filename(path))
         else:
-            validate_file(path, time, language, errors)
+            validate_file(path, language, time, errors)
 
 
-def validate_directory(path, time_execution, language, errors):
+def validate_directory(path, language, time_execution, show_errors):
     for root, _, filenames in os.walk(path):
         for filename in filenames:
-            validate_file(os.path.join(root, filename), time_execution,
-                          language, errors)
+            file_path = os.path.join(root, filename)
+            validate_file(file_path, language, time_execution, show_errors)
 
 
-def validate_file(path, time_execution, language, errors):
+def validate_file(path, language, time_execution, show_errors):
     problem = get_problem_from_path(path)
     if problem is None:
         click.echo('Skipping %s because it does not contain '
@@ -71,13 +71,13 @@ def validate_file(path, time_execution, language, errors):
 
     click.echo('Checking output of %s: ' % click.format_filename(path),
                nl=False)
-    result = verify_solution(path, time_execution, problem, language)
-    print_result(result, errors, time_execution)
+    result = verify_solution(path, language, time_execution, problem)
+    print_result(result, show_errors, time_execution)
 
 
-def print_result(result, errors, show_time):
+def print_result(result, show_errors, show_time):
     if result['error'] != 'none':
-        if errors:
+        if show_errors:
             error_message = result[result['error']]['output']
         else:
             error_message = '[error during %s]' % result['error']
@@ -112,8 +112,8 @@ def get_problem_id_from_path(path):
     return int(problem_id[0]) if len(problem_id) > 0 else None
 
 
-def verify_solution(path, time_execution, problem, language):
-    commands = get_commands(language, path)
+def verify_solution(path, language, time_execution, problem):
+    commands = get_commands(path, language)
     result = {'error': 'none'}
 
     for stage in STAGES:
@@ -139,7 +139,7 @@ def get_process_output(process):
     return str(process.stdout, encoding='UTF-8').rstrip(), False
 
 
-def get_commands(language, path):
+def get_commands(path, language):
     commands = {'build': None, 'cleanup': None}
     commands['execute'] = language.get('execute', './{path}').format(path=path)
 
