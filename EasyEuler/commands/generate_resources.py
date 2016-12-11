@@ -4,7 +4,7 @@ import sys
 
 import click
 
-from EasyEuler import data, paths
+from EasyEuler import paths
 from EasyEuler.types import ProblemType
 
 
@@ -37,8 +37,8 @@ def cli(problem, path):
 def generate_resources(resources, path):
     if len(resources) > 1 and not os.path.isdir(path):
         if os.path.exists(path):
-            sys.exit('%s needs to be a directory to '
-                     'create multiple resource files' % path)
+            sys.exit('%s needs to be a directory to create multiple '
+                     'resource files' % click.format_filename(path))
         os.mkdir(path)
 
     for resource in resources:
@@ -47,10 +47,11 @@ def generate_resources(resources, path):
         else:
             resource_path = path
 
-        if os.path.exists(resource_path):
-            if not click.confirm('%s already exists. Do '
-                                 'you want to overwrite it?' % resource_path):
-                continue
+        if os.path.exists(resource_path) and not \
+           click.confirm('%s already exists. Do you want to overwrite it?' %
+                         click.format_filename(resource_path)):
+            continue
 
         shutil.copy('%s/resources/%s' % (paths.DATA, resource), path)
-        click.echo('Created %s at path %s' % (resource, path))
+        click.echo('Created %s at path %s' % (resource,
+                                              click.format_filename(path)))

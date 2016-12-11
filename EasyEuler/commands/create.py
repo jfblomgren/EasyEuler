@@ -26,11 +26,13 @@ def cli(problem, language, path):
     """
 
     if path is None:
-        path = data.config['filename format'].format(id=problem['id'],
-                                                     extension=language['extension'])
+        filename_format = data.config['filename format']
+        path = filename_format.format(id=problem['id'],
+                                      extension=language['extension'])
 
-    if os.path.exists(path) and not click.confirm('%s already exists. Do you '
-                                                  'want to overwrite it?' % path):
+    if os.path.exists(path) and not \
+       click.confirm('%s already exists. Do you want to overwrite it?' %
+                     click.format_filename(path)):
         return
 
     try:
@@ -42,8 +44,8 @@ def cli(problem, language, path):
 
 
 def write_to_file(problem, language, path):
-    template = data.templates.get_template(language.get('template',
-                                                        language['name']))
+    template_name = language.get('template', language['name'])
+    template = data.templates.get_template(template_name)
 
-    with open(path, 'w') as f:
-        f.write(template.render(**problem))
+    with open(path, 'w') as problem_file:
+        problem_file.write(template.render(**problem))

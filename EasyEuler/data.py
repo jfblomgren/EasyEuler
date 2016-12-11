@@ -57,15 +57,17 @@ class ConfigurationDictionary(collections.Mapping):
         raise NotImplementedError
 
 
-config_list = []
+CONFIG_LIST = []
 for CONFIG_PATH in paths.CONFIGS:
-    if os.path.exists(CONFIG_PATH):
-        with open(CONFIG_PATH) as conf:
-            config_list.append(json.load(conf))
+    if not os.path.exists(CONFIG_PATH):
+        continue
+
+    with open(CONFIG_PATH) as conf:
+        CONFIG_LIST.append(json.load(conf))
 
 with open(paths.PROBLEMS) as f:
-    problem_list = json.load(f)
+    PROBLEM_LIST = json.load(f)
 
-config = ConfigurationDictionary(config_list)
-problems = ProblemList(problem_list)
+config = ConfigurationDictionary(CONFIG_LIST)
+problems = ProblemList(PROBLEM_LIST)
 templates = Environment(loader=FileSystemLoader(paths.TEMPLATES))

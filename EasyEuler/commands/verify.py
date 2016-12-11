@@ -13,6 +13,7 @@ from EasyEuler.types import LanguageType
 
 
 PROBLEM_ID_REGEX = re.compile(r'\D*([1-9]\d{0,2}).*')
+STAGES = ('build', 'execute', 'cleanup')
 
 
 @click.command()
@@ -44,8 +45,8 @@ def cli(paths, language, recursive, time, errors):
             if recursive:
                 validate_directory(path, time, language, errors)
             else:
-                click.echo('Skipping %s because it is a directory and '
-                           '--recursive was not specified' %
+                click.echo('Skipping %s because it is a directory '
+                           'and --recursive was not specified' %
                            click.format_filename(path))
         else:
             validate_file(path, time, language, errors)
@@ -66,7 +67,7 @@ def validate_file(path, time_execution, language, errors):
         return
 
     if language is None:
-        language = get_language_from_path(path)
+        language = get_language_from_path(path) or {}
 
     click.echo('Checking output of %s: ' % click.format_filename(path),
                nl=False)
@@ -87,9 +88,9 @@ def print_result(result, errors, show_time):
                 fg='green' if result['correct'] else 'red')
 
     if show_time:
-        click.secho('CPU times - user: {user}, '         \
-                    'system: {system}, total: {total}\n' \
-                    'Wall time: {wall}\n'                \
+        click.secho('CPU times - user: {user}, '
+                    'system: {system}, total: {total}\n'
+                    'Wall time: {wall}\n'
                     .format(**result['execute']['execution_time']),
                     fg='cyan')
 
@@ -115,7 +116,7 @@ def verify_solution(path, time_execution, problem, language):
     commands = get_commands(language, path)
     result = {'error': 'none'}
 
-    for stage in ('build', 'execute', 'cleanup'):
+    for stage in STAGES:
         if commands[stage] is None:
             continue
 
@@ -139,9 +140,6 @@ def get_process_output(process):
 
 
 def get_commands(language, path):
-    if language is None:
-        language = {}
-
     commands = {'build': None, 'cleanup': None}
     commands['execute'] = language.get('execute', './{path}').format(path=path)
 
