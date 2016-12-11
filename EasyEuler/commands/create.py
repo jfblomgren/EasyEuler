@@ -5,6 +5,7 @@ import click
 
 from EasyEuler import data
 from EasyEuler.types import LanguageType, ProblemType
+from EasyEuler.commands.generate_resources import generate_resources
 
 
 @click.command()
@@ -41,6 +42,14 @@ def cli(problem, language, path):
         sys.exit('An exception occurred: %s' % exception)
 
     click.echo('Written to %s' % click.format_filename(path))
+
+    if 'resources' in problem and \
+        click.confirm('Generate resources for this problem?'):
+            resource_path = click.prompt('Path (default: current directory)',
+                                         default='.', show_default=False,
+                                         type=click.Path(writable=True,
+                                                         readable=False))
+            generate_resources(problem['resources'], resource_path)
 
 
 def write_to_file(problem, language, path):
