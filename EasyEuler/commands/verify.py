@@ -4,7 +4,6 @@ import re
 import subprocess
 import sys
 import time
-import resource
 
 import click
 
@@ -88,11 +87,17 @@ def print_result(result, show_errors, show_time):
                 fg='green' if result['correct'] else 'red')
 
     if show_time:
-        click.secho('CPU times - user: {user}, '
-                    'system: {system}, total: {total}\n'
-                    'Wall time: {wall}\n'
-                    .format(**result['execute']['execution_time']),
-                    fg='cyan')
+        print_execution_time(result['execute']['execution_time'])
+
+
+def print_execution_time(execution_time):
+    if 'user' in execution_time:
+        execution_time_msg = 'CPU times - user: {user}, '         \
+                             'system: {system}, total: {total}\n' \
+                             'Wall time: {wall}\n'
+    else:
+        execution_time_msg = 'Time: {wall}\n'
+    click.secho(execution_time_msg.format(**execution_time), fg='cyan')
 
 
 def get_problem_from_path(path):
@@ -169,10 +174,19 @@ def execute_process(command, time_execution):
     return {'output': output, 'error': error, 'execution_time': execution_time}
 
 
-def get_time():
-    rs = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return {'user': rs.ru_utime, 'system': rs.ru_stime,
-            'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
+try:
+    import resource
+
+    def get_time():
+        rs = resource.getrusage(resource.RUSAGE_CHILDREN)
+        return {'user': rs.ru_utime, 'system': rs.ru_stime,
+                'total': rs.ru_stime + rs.ru_utime, 'wall': time.time()}
+except ImportError:
+    # The resource module only exists on Unix-based platforms.
+    # This is a different platform, so we can't provide user
+    # and system times.
+    def get_time():
+        return {'wall': time.time()}
 
 
 def format_long_time(timespan):
