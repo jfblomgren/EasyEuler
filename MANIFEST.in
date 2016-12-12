@@ -1,4 +1,4 @@
 include README.rst requirements.txt LICENSE
 include EasyEuler/config.json
-recursive-include EasyEuler/data problems.json resources
+recursive-include EasyEuler/data problems.json resources/*
 graft EasyEuler/templates
