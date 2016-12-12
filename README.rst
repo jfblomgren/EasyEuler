@@ -147,12 +147,17 @@ Languages
 Adding a new language is as easy as adding a few lines to the ``config.json``
 file.
 
-A language has the following attributes:
+A language has the following general attributes:
 
--  ``name`` - the name of the language. This is also the language key.
--  ``extension`` - the file extension of the language.
--  ``command`` - the command to execute with the ``verify`` command.
--  ``template`` - the name of the template.
+-  ``name`` - name of the language. (required)
+-  ``extension`` - file extension for the language. (required)
+-  ``template`` - name of the template file. (default: ``name``)
+
+These commands are executed in order when using the ``verify`` command:
+
+-  ``build`` - build the file if required.
+-  ``execute`` - time this command and compare the output to the solution. (default: ``./{path}``)
+-  ``cleanup`` - remove binary files after execution, etc.
 
 Templates
 ~~~~~~~~~
@@ -168,7 +173,8 @@ EasyEuler requires `Python
 with the `Click <http://click.pocoo.org>`__,
 `Jinja2 <http://jinja.pocoo.org>`__ and
 `tabulate <https://pypi.python.org/pypi/tabulate>`__ modules.
-It has been tested on Windows 10 and Linux.
+It has been tested on Windows and Linux and it should work on any other
+Unix-based platforms, including macOS.
 
 Contributing
 ============
