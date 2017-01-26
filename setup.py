@@ -15,7 +15,7 @@ def get_readme():
 
 setup(
     name='EasyEuler',
-    version='1.2.0',
+    version='1.2.1',
     description='A command line tool for Project Euler',
     long_description=get_readme(),
     license='MIT',
@@ -28,7 +28,7 @@ setup(
         'Topic :: Utilities',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3.5',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: Unix',
